@@ -1,0 +1,3 @@
+/home/jibbam/paparazzi/sw/airborne/modules/SURF_TEST/build/CMakeFiles/rebuild_cache.dir
+/home/jibbam/paparazzi/sw/airborne/modules/SURF_TEST/build/CMakeFiles/SURF.dir
+/home/jibbam/paparazzi/sw/airborne/modules/SURF_TEST/build/CMakeFiles/edit_cache.dir

@@ -1,0 +1,7 @@
+[
+{
+  "directory": "/home/jibbam/paparazzi/sw/airborne/modules/SURF_TEST/build",
+  "command": "/usr/bin/arm-linux-gnueabi-g++-7   -isystem /usr/local/include -isystem /usr/local/include/opencv  -g   -o CMakeFiles/SURF.dir/test_temp_match.cpp.o -c /home/jibbam/paparazzi/sw/airborne/modules/SURF_TEST/test_temp_match.cpp",
+  "file": "/home/jibbam/paparazzi/sw/airborne/modules/SURF_TEST/test_temp_match.cpp"
+}
+]
