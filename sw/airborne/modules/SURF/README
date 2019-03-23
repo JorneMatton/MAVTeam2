@@ -1,0 +1,78 @@
+IN Visual studio code, use the following settings to run and debug:
+
+
+In Tasks.json file:
+
+{
+    "version": "2.0.0",
+    "tasks": [
+        {
+            "label": "build surf",
+            "type": "shell",
+            "command": "g++",
+            "args": [
+                "-g", "test_temp_match.cpp", "-I/usr/local/include/opencv", "-I/usr/local/include","-I/usr/include", "-L/usr/local/lib",
+                "-lopencv_shape", "-lopencv_stitching", "-lopencv_objdetect", "-lopencv_superres", "-lopencv_videostab", "-lopencv_calib3d",
+                "-lopencv_features2d", "-lopencv_xfeatures2d",  "-lopencv_highgui", "-lopencv_videoio", "-lopencv_imgcodecs", "-lopencv_video", "-lopencv_photo", 
+                "-lopencv_ml", "-lopencv_imgproc", "-lopencv_flann", "-lopencv_core", "-o", "SURF_BIATCH"
+            ]
+        }
+    ]
+}
+
+In launch.json file:
+
+{
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "(gdb) Launch",
+            "type": "cppdbg",
+            "request": "launch",
+            "program": "${workspaceFolder}/SURF_BIATCH",
+            "args": [],
+            "stopAtEntry": false,
+            "cwd": "${workspaceFolder}",
+            "environment": [],
+            "externalConsole": false,
+            "linux": {
+                "MIMode": "gdb",
+                "includePath": ["/usr/include", "/usr/local/include/opencv", "/usr/local/include"],
+                "setupCommands": [
+                  {
+                    "description": "Enable pretty-printing for gdb",
+                    "text": "-enable-pretty-printing",
+                    "ignoreFailures": true
+                  }]
+              },
+            "setupCommands": [
+                {
+                    "description": "Enable pretty-printing for gdb",
+                    "text": "-enable-pretty-printing",
+                    "ignoreFailures": true
+                }
+            ],
+            "preLaunchTask": "build surf"            
+        }
+    ]
+}
+
+in properties.json file:
+
+{
+    "configurations": [
+        {
+            "name": "Linux",
+            "includePath": [
+                "${workspaceFolder}/**"
+            ],
+            "defines": [],
+            "compilerPath": "/usr/bin/gcc",
+            "cStandard": "c11",
+            "cppStandard": "c++17",
+            "intelliSenseMode": "clang-x64",
+            "compileCommands": "${workspaceFolder}/build/compile_commands.json"
+        }
+    ],
+    "version": 4
+}
