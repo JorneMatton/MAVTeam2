@@ -10,9 +10,10 @@
 #include <opencv2/opencv.hpp>
 #include <opencv2/imgcodecs/imgcodecs.hpp>
 #include <deque>
+#include <time.h>
 
 const float DIST_TRESHOLD = 0.1;             // euclidean distance threshold for the SURF descriptor match filter
-const int N_SKIP = 6;                        // gap in images between frameNum matching reset
+const int N_SKIP = 3;                        // gap in images between frameNum matching reset
 const float TEMP_SIZE_FACTOR = 1.5;          // ratio factor (template area / feature_size) for template matching
 const float OBJECT_SCALE_DETECTION_TH = 1.2; // scale increase detection treshold
 const float ERROR_DECREASE_FACTOR = 0.65;     // factor by which the template matching error must have improved compared to scale 1
@@ -31,7 +32,7 @@ deque<vector<KeyPoint>> prevKpsQueue;
 
 //Helper functions
 vector<cv::Mat> readAndStoreImages(cv::String folder);
-std::vector<double> linspace(double a, double b, int numOfEntries);
+static std::vector<double> linspace(double a, double b, int numOfEntries);
 
 //Main
 int main()
@@ -47,6 +48,8 @@ int main()
     //Proces the images
     for (int frameNum = 0; frameNum < images.size(); frameNum++)
     {
+        // clock_t tStart = clock();
+
         //Get the image
         Mat newImg = images[frameNum];
 
@@ -77,33 +80,27 @@ int main()
 
             //Match with the previous image and its descriptors and keypoints
             BFMatcher bf = BFMatcher(NORM_L2, true);
-            vector<DMatch> initialMatches, matches;
+            vector<DMatch> initialMatches, finalizedMatches;
             bf.match(prevDescs, newDescs, initialMatches);
 
-            //Filter matches above the euclidean distance treshold
-            for (size_t i = 0; i < initialMatches.size(); i++)
-            {
-                if (initialMatches[i].distance < DIST_TRESHOLD){
-                    matches.push_back(initialMatches[i]);
-                }
-            }
-
-            //Filter out matches whose size has decreased or stayed the same
-            vector<DMatch> finalizedMatches;
             vector<KeyPoint> finalNewKps, finalPrevKps;
-            for (size_t idx = 0; idx < matches.size(); idx++)
+
+            //Filter matches above the euclidean distance treshold and keep them only if the size of the keypoint became bigger
+            for (size_t idx = 0; idx < initialMatches.size(); idx++)
             {
-                int prevKptIdx = matches[idx].queryIdx;
-                int newKptIdx = matches[idx].trainIdx;
+                int prevKptIdx = initialMatches[idx].queryIdx;
+                int newKptIdx = initialMatches[idx].trainIdx;
                 float sizePrevKpt = prevKps[prevKptIdx].size;
                 float sizeNewKpt = newKps[newKptIdx].size;
 
-                if (sizeNewKpt > sizePrevKpt)
-                {
-                    finalizedMatches.push_back(matches[idx]);
-                    finalNewKps.push_back(newKps[matches[idx].trainIdx]);
-                    finalPrevKps.push_back(prevKps[matches[idx].queryIdx]);
+                if ( (initialMatches[idx].distance) < DIST_TRESHOLD && (sizeNewKpt > sizePrevKpt) ){
+
+                    finalizedMatches.push_back(initialMatches[idx]);
+                    finalNewKps.push_back(newKps[initialMatches[idx].trainIdx]);
+                    finalPrevKps.push_back(prevKps[initialMatches[idx].queryIdx]);                
+
                 }
+                
             }
 
             // cout<<"finalizedMatches size"<<finalizedMatches.size()<<endl;
@@ -232,6 +229,8 @@ int main()
         prevImgQueue.push_back(grayNewImg);
         prevDescsQueue.push_back(newDescs);
         prevKpsQueue.push_back(newKps);
+
+        // printf("Time taken: %.2fs\n", (double)(clock() - tStart)/CLOCKS_PER_SEC);
     }
 
     waitKey(0);
@@ -257,7 +256,7 @@ vector<cv::Mat> readAndStoreImages(cv::String path)
     return images;
 }
 
-std::vector<double> linspace(double start, double end, int num)
+static std::vector<double> linspace(double start, double end, int num)
 {
 
     std::vector<double> linspaced;
@@ -282,3 +281,4 @@ std::vector<double> linspace(double start, double end, int num)
                               // are exactly the same as the input
     return linspaced;
 }
+
