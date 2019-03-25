@@ -33,13 +33,17 @@ define which filter to use.
       </dl_settings>
     </dl_settings>
   </settings>
-  
+
+<!-- Here the header file is listed -->
   <depends>cv_detect_color_object</depends>
+
   <header>
     <file name="orange_avoider_guided.h"/>
   </header>
   <init fun="orange_avoider_guided_init()"/>
   <periodic fun="orange_avoider_guided_periodic()" freq="4"/>
+
+<!-- Link to the makefile; how should the source files be compiled -->
   <makefile target="ap|nps">
     <file name="orange_avoider_guided.c"/>
   </makefile>

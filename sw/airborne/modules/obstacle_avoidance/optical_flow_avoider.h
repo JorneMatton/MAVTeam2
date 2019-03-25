@@ -25,8 +25,8 @@
  * define which filter to use.
  */
 
-#ifndef ORANGE_AVOIDER_GUIDED_H
-#define ORANGE_AVOIDER_GUIDED_H
+#ifndef OPTICAL_FLOW_AVOIDER_H
+#define OPTICAL_FLOW_AVOIDER_H
 
 // settings
 extern float oag_color_count_frac;  // obstacle detection threshold as a fraction of total of image

@@ -365,7 +365,7 @@ bool calc_fast9_lukas_kanade(struct opticflow_t *opticflow, struct image_t *img,
 
       // This works well for exhaustive FAST, but drives the threshold to the minimum for ACT-FAST:
       // Decrease and increase the threshold based on previous values
-      if (result->corner_cnt < 40) { // TODO: Replace 40 with OPTICFLOW_MAX_TRACK_CORNERS / 2
+      if (result->corner_cnt < OPTICFLOW_MAX_TRACK_CORNERS/2) {
         // make detections easier:
         if (opticflow->fast9_threshold > FAST9_LOW_THRESHOLD) {
           opticflow->fast9_threshold--;

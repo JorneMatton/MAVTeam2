@@ -25,7 +25,7 @@
  * define which filter to use.
  */
 
-#include "modules/orange_avoider/orange_avoider_guided.h"
+#include "modules/orange_avoider/optical_flow_avoider.h"
 #include "firmwares/rotorcraft/guidance/guidance_h.h"
 #include "generated/airframe.h"
 #include "state.h"
@@ -33,10 +33,10 @@
 #include <stdio.h>
 #include <time.h>
 
-#define ORANGE_AVOIDER_VERBOSE TRUE
+#define OPTICAL_FLOW_VERBOSE TRUE
 
-#define PRINT(string,...) fprintf(stderr, "[orange_avoider_guided->%s()] " string,__FUNCTION__ , ##__VA_ARGS__)
-#if ORANGE_AVOIDER_VERBOSE
+#define PRINT(string,...) fprintf(stderr, "[optical_flow_avoider->%s()] " string,__FUNCTION__ , ##__VA_ARGS__)
+#if OPTICAL_FLOW_VERBOSE
 #define VERBOSE_PRINT PRINT
 #else
 #define VERBOSE_PRINT(...)
