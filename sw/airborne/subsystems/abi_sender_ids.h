@@ -423,4 +423,13 @@
 #define COLOR_OBJECT_DETECTION2_ID 2
 #endif
 
+/*
+ * SURF communication (message 28)
+*/
+#ifndef SURF_OBJECT_DETECTION1_ID
+#define SURF_OBJECT_DETECTION1_ID 1
+#endif
+
+
+
 #endif /* ABI_SENDER_IDS_H */
