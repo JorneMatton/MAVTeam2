@@ -132,18 +132,18 @@ void orange_avoider_periodic(void)
       break;
     case OBSTACLE_FOUND:
       //stop
-		waypoint_set_here_2d(WP_GOAL);
-		waypoint_set_here_2d(WP_TRAJECTORY);
+		  waypoint_set_here_2d(WP_GOAL);
+		  waypoint_set_here_2d(WP_TRAJECTORY);
     	//moveWaypointSideways(WP_TRAJECTORY);
     	//moveWaypointSideways(WP_GOAL);
       // inteligently select new search direction
-		chooseIncrementAvoidance();
-		if (obstacle_free_confidence >= 2){
-        navigation_state = SAFE;
-      }
-      break;
+		  chooseIncrementAvoidance();
+      if (obstacle_free_confidence >= 2){
+          navigation_state = SAFE;
+          break;
+        }
+        
       navigation_state = SEARCH_FOR_SAFE_HEADING;
-
       break;
     case SEARCH_FOR_SAFE_HEADING:
       increase_nav_heading(heading_increment);
@@ -259,20 +259,8 @@ uint8_t moveWaypointSideways(uint8_t waypoint)
  */
 uint8_t chooseIncrementAvoidance(void)
 {
-int n = sizeof(x)/sizeof(x[0]); 
-int right_X=largest(x,n);
-int down_Y=smallest(y,n);
-int left_X=smallest(x,n);
-int upper_Y=largest(y,n);
-int area_L=abs(-ROIw/2-left_X)*abs(upper_Y-down_Y);
-int area_R=abs(ROIw/2-right_X)*abs(upper_Y-down_Y);
-  // chooses CW or CCW according to image
-  if (area_R>area_L) {
-    heading_increment = 5.f;
-    VERBOSE_PRINT("Set avoidance increment to: %f\n", heading_increment);
-  } else {
-    heading_increment = -5.f;
-    VERBOSE_PRINT("Set avoidance increment to: %f\n", heading_increment);
+  if(heading!=0){
+    heading_increment = heading;
   }
   return false;
 }
