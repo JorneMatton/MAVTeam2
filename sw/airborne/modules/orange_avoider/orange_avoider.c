@@ -57,11 +57,9 @@ enum navigation_state_t {
 
 // define and initialise global variables
 enum navigation_state_t navigation_state = SEARCH_FOR_SAFE_HEADING;
-
 int obstacle_free_confidence = 0; // a measure of how certain we are that the way ahead is safe.
 float heading_increment = 5.f;          // heading angle increment [deg]
 float maxDistance = 2.25;               // max waypoint displacement [m]
-int ROIw=1000;// number of pixels in image width (TO BE DEFINED)
 
 
 int16_t heading = 0;
@@ -105,7 +103,7 @@ void orange_avoider_periodic(void)
 
   //VERBOSE_PRINT("Color_count: %d  threshold: %d state: %d \n", color_count, color_count, navigation_state);
 
-  // update our safe confidence using color threshold
+  // update our safe confidence using heading_target input (from SURF feature detection)
   if(heading==0){
     obstacle_free_confidence++;
   } else {
@@ -261,6 +259,7 @@ uint8_t chooseIncrementAvoidance(void)
 {
   if(heading!=0){
     heading_increment = heading;
+    VERBOSE_PRINT("Set avoidance increment to: %f\n", heading_increment);
   }
   return false;
 }
