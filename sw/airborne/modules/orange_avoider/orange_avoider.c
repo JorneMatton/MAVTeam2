@@ -44,8 +44,6 @@ uint8_t moveWaypoint(uint8_t waypoint, struct EnuCoor_i *new_coor);
 uint8_t increase_nav_heading(float incrementDegrees);
 uint8_t chooseRandomIncrementAvoidance(void);
 uint8_t chooseIncrementAvoidance(void); 
-int largest(int arr[], int n);
-int smallest(int arr[], int n);
 
 enum navigation_state_t {
   SAFE,
@@ -59,11 +57,14 @@ enum navigation_state_t {
 
 // define and initialise global variables
 enum navigation_state_t navigation_state = SEARCH_FOR_SAFE_HEADING;
-std::vector <int16_t> x,y;               // list of x values of obstacles
-int16_t obstacle_free_confidence = 0; // a measure of how certain we are that the way ahead is safe.
+
+int obstacle_free_confidence = 0; // a measure of how certain we are that the way ahead is safe.
 float heading_increment = 5.f;          // heading angle increment [deg]
 float maxDistance = 2.25;               // max waypoint displacement [m]
-int ROIw=1000;// number of pixels in image width (TO BE DEFINED) 
+int ROIw=1000;// number of pixels in image width (TO BE DEFINED)
+
+
+int16_t heading = 0;
 
 const int16_t max_trajectory_confidence = 5; // number of consecutive negative object detections to be sure we are obstacle free
 
@@ -71,16 +72,9 @@ const int16_t max_trajectory_confidence = 5; // number of consecutive negative o
 #define ORANGE_AVOIDER_SURF_OBSTACLE_ID ABI_BROADCAST
 #endif
 static abi_event surf_detection_ev;
-static void surf_detection_cb(uint8_t sender_id,int16t x_obstacle, y_obstacle)
+static void surf_detection_cb(uint8_t sender_id,int16_t heading_target)
 {
-	
- for( int i = 0; i < x_obstacle.size(); i++){
-	 x.push_back(x_obstacle[i]);
-	 y.push_back(y_obstacle[i]);
- }
-  x = x_obstacle;
-  y = y_obstacle;
-  
+heading = heading_target;
 }
 
 /*
@@ -112,7 +106,7 @@ void orange_avoider_periodic(void)
   //VERBOSE_PRINT("Color_count: %d  threshold: %d state: %d \n", color_count, color_count, navigation_state);
 
   // update our safe confidence using color threshold
-  if(x.empty()){
+  if(heading==0){
     obstacle_free_confidence++;
   } else {
     obstacle_free_confidence -= 2;  // be more cautious with positive obstacle detections
@@ -260,36 +254,6 @@ uint8_t moveWaypointSideways(uint8_t waypoint)
   return false;
 }
 
-int largest(int arr[], int n) 
-{ 
-    int i; 
-     
-    // Initialize maximum element 
-    int max = arr[0]; 
-  
-    // Traverse array elements from second and 
-    // compare every element with current max   
-    for (i = 1; i < n; i++) 
-        if (arr[i] > max) 
-            max = arr[i]; 
-  
-    return max; 
-} 
-int smallest(int arr[], int n) 
-{ 
-    int i; 
-     
-    // Initialize maximum element 
-    int max = arr[0]; 
-  
-    // Traverse array elements from second and 
-    // compare every element with current max   
-    for (i = 1; i < n; i++) 
-        if (arr[i] < min) 
-            min = arr[i]; 
-  
-    return min; 
-} 
 /*
  * Sets the variable 'heading_increment' positive/negative
  */

@@ -192,8 +192,7 @@
     </message>
 
     <message name="SURF_OBSTACLE" id="28">
-      <field name="pixel_x"      type="int16_t">Center pixel X</field>
-      <field name="pixel_y"      type="int16_t">Center pixel Y</field>      
+      <field name="heading_target"      type="int16_t">obstacle avoidance direction</field>
     </message>
 
   </msg_class>
