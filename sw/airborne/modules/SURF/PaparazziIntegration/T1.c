@@ -1,42 +1,28 @@
-#include "modules/computer_vision/cv_detect_color_object.h"
 #include "modules/computer_vision/cv.h"
 #include "subsystems/abi.h"
 #include "std.h"
 
-#include <stdio.h>
-#include <stdbool.h>
-#include <math.h>
 #include "pthread.h"
 #include "SURF_Integration.h"
-#include "opencv_image_functions.h"
+#include "T1.h"
 
-static pthread_mutex_t mutex;
+static pthread_mutex_t mutex; 
 
+#ifndef SURF_FPS
+#define SURF_FPS 4       ///< Default FPS (zero means run at camera fps)
+#endif
 
-typedef struct SURF_object {
-    float * x_p;
-    float * y_p;
-}
-
-struct SURF_object global_objects[1];   //variable that will be shared between video thread and autopilot thread
-
-}
+uint16_t global_heading_target; //variable that will be shared between video thread and autopilot thread
 
 //Video callback
 static struct image_t *surf_object_detector(struct image_t *img)
 {
-  //calculate object detection results 
+  float heading_target;
 
-  //convert the incoming image to grayscale
-  Mat M(heigth, width, CV_8UC2, newImg);
-  cvtColor(M, img, CV_YUV2GRAY_Y422);
-
-  //now get the 
-  vector<Keypoint> objects;
-  objects = gesurfGetKeypointObjects(struct *img);
-
+  surfDetectObjectsAndComputeControl((char *) img->buf, img->w, img->h, &heading_target);
+  
   pthread_mutex_lock(&mutex);
-  global_object = objects;
+  global_heading_target = heading_target;
   pthread_mutex_unlock(&mutex);
 
   return img;
@@ -45,19 +31,19 @@ static struct image_t *surf_object_detector(struct image_t *img)
 //Surf module initialisation function
 void surf_object_detector_init(void)
 {
-  cv_add_to_device(&COLORFILTER_CAMERA, surf_object_detector, COLORFILTER_FPS);
+  cv_add_to_device(&COLORFILTER_CAMERA, surf_object_detector, SURF_FPS);
 }
 
 
 //Surf module periodic function (executed in the autopilotthread)
 void surf_object_detector_periodic(void)
 {
-  static struct SURF_object local_objects
+  float local_heading_target;
 
   pthread_mutex_lock(&mutex);  
-  local_filter = global_filter;
+  local_heading_target = global_heading_target;
   pthread_mutex_unlock(&mutex);
 
-  AbiSendMsgSURF(SURF_OBJECT_DETECTION1_ID,local_object.x,local_object.y)
+  AbiSendMsgSURF(SURF_OBJECT_DETECTION1_ID,local_heading_target)
   
 }

@@ -1,4 +1,3 @@
-
 #include <stdio.h>
 #include <iostream>
 #include "opencv2/core.hpp"
@@ -12,6 +11,7 @@
 #include <opencv2/imgcodecs/imgcodecs.hpp>
 #include <deque>
 #include <numeric>
+
 #include "SURF_Integration.h"
 
 const float DIST_TRESHOLD = 0.1;             // euclidean distance threshold for the SURF descriptor match filter
@@ -25,7 +25,6 @@ const bool SURF_IS_UPRIGHT = true;           // Use U-surf to disregard rotation
 const bool SURF_IS_EXTENDED = false;         // set the surf from 64 dimensions to 128 (slower matching)
 const bool EDGE_DETECTOR_IS_ON = false;      // Apply edge detector at template matching
 #define TEMPLATE_IP_METHOD INTER_LINEAR      // template resizing method
-
 const int DECLARE_AS_OBSTACLE_TH = 3; //mininum number of keypoints that have to be detected
 
 using namespace std;
@@ -35,8 +34,6 @@ using namespace cv::xfeatures2d;
 deque<Mat> prevImgQueue, prevDescsQueue;
 deque<vector<KeyPoint>> prevKpsQueue;
 
-//Helper functions
-static std::vector<double> linspace(double a, double b, int numOfEntries);
 
 //Main
 void surfDetectObjectsAndComputeControl(char *img, int imgWidth, int imgHeigth, uint16_t *heading_target)
@@ -208,7 +205,7 @@ void surfDetectObjectsAndComputeControl(char *img, int imgWidth, int imgHeigth, 
     prevKpsQueue.push_back(newKps);
 }
 
-static std::vector<double> linspace(double start, double end, int num)
+std::vector<double> linspace(double start, double end, int num)
 {
     std::vector<double> linspaced;
 
