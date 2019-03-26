@@ -64,6 +64,14 @@
       <define name="VIEWVIDEO_DOWNSIZE_FACTOR" value="1"/>
       <define name="VIEWVIDEO_QUALITY_FACTOR" value="40"/>
     </module>
+    <module name="surf">
+      <define name="COLOR_FILTER_CAMERA" value="front_camera"/>
+      <define name="SURF_FPS" value="4"/>
+    </module>
+    <module name="orange_avoider">
+      <define name="ORANGE_AVOIDER_SURF_OBSTACLE_ID" value="ABI_BROADCAST"/>
+    </module>
+
   </firmware>
 
   <commands>

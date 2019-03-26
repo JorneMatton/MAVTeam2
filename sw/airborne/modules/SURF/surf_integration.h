@@ -5,7 +5,7 @@
 extern "C" {
 #endif
 
-#include <vector>;
+#include <vector>
 
 std::vector<double> linspace(double a, double b, int numOfEntries);
 

@@ -12,7 +12,7 @@
 #include <deque>
 #include <numeric>
 
-#include "SURF_Integration.h"
+#include "surf_integration.h"
 
 const float DIST_TRESHOLD = 0.1;             // euclidean distance threshold for the SURF descriptor match filter
 const int N_SKIP = 15;                       // gap in images between frameNum matching reset
@@ -24,8 +24,9 @@ const double SURF_HESSIAN_TRESHOLD = 1000;   // threshold of hessian for the SUR
 const bool SURF_IS_UPRIGHT = true;           // Use U-surf to disregard rotation invariance for performance boost
 const bool SURF_IS_EXTENDED = false;         // set the surf from 64 dimensions to 128 (slower matching)
 const bool EDGE_DETECTOR_IS_ON = false;      // Apply edge detector at template matching
-#define TEMPLATE_IP_METHOD INTER_LINEAR      // template resizing method
 const int DECLARE_AS_OBSTACLE_TH = 3; //mininum number of keypoints that have to be detected
+
+#define TEMPLATE_IP_METHOD INTER_LINEAR      // template resizing method
 
 using namespace std;
 using namespace cv;

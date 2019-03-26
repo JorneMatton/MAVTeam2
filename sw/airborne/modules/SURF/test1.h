@@ -1,5 +1,5 @@
-#ifndef T1_H
-#define T1_H
+#ifndef TEST1_H
+#define TEST1_H
 
 
 extern void surf_object_detector_init(void);

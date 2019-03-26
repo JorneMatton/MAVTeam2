@@ -3,8 +3,8 @@
 #include "std.h"
 
 #include "pthread.h"
-#include "SURF_Integration.h"
-#include "T1.h"
+#include "surf_integration.h"
+#include "test1.h"
 
 static pthread_mutex_t mutex; 
 
@@ -12,12 +12,13 @@ static pthread_mutex_t mutex;
 #define SURF_FPS 4       ///< Default FPS (zero means run at camera fps)
 #endif
 
+
 uint16_t global_heading_target; //variable that will be shared between video thread and autopilot thread
 
 //Video callback
 static struct image_t *surf_object_detector(struct image_t *img)
 {
-  float heading_target;
+  uint16_t heading_target;
 
   surfDetectObjectsAndComputeControl((char *) img->buf, img->w, img->h, &heading_target);
   
@@ -38,7 +39,7 @@ void surf_object_detector_init(void)
 //Surf module periodic function (executed in the autopilotthread)
 void surf_object_detector_periodic(void)
 {
-  float local_heading_target;
+  uint16_t local_heading_target;
 
   pthread_mutex_lock(&mutex);  
   local_heading_target = global_heading_target;
