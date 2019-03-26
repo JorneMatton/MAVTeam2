@@ -21,8 +21,8 @@
     <!-- Front Camera parameters -->
     <define name="MT9F002_INITIAL_OFFSET_X" value="0.09" /> <!-- Offset from center position [-0.5..0.5]. Set to 0.09 to center horizon. -->
     <define name="MT9F002_INITIAL_OFFSET_Y" value="0." /> <!-- Offset from center position [-0.5..0.5] -->
-    <define name="MT9F002_OUTPUT_WIDTH" value="590" /> <!-- Output dimensions -->
-    <define name="MT9F002_OUTPUT_HEIGHT" value="1280" /> <!-- Output dimensions -->
+    <define name="MT9F002_OUTPUT_WIDTH" value="240" /> <!-- Output dimensions -->
+    <define name="MT9F002_OUTPUT_HEIGHT" value="520" /> <!-- Output dimensions -->
     <define name="MT9F002_TARGET_FPS" value="30" />
     <define name="MT9F002_TARGET_EXPOSURE" value="20" />
     <define name="MT9F002_GAIN_GREEN1" value="4.0" />
@@ -66,7 +66,7 @@
     </module>
     <module name="surf">
       <define name="COLOR_FILTER_CAMERA" value="front_camera"/>
-      <define name="SURF_FPS" value="4"/>
+      <define name="SURF_FPS" value="10"/>
     </module>
     <module name="orange_avoider">
       <define name="ORANGE_AVOIDER_SURF_OBSTACLE_ID" value="ABI_BROADCAST"/>

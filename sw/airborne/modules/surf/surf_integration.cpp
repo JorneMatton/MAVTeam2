@@ -1,4 +1,5 @@
 #include <stdio.h>
+#include "std.h"
 #include <iostream>
 #include "opencv2/core.hpp"
 #include "opencv2/features2d.hpp"
@@ -13,6 +14,9 @@
 #include <numeric>
 
 #include "surf_integration.h"
+
+#define PRINT(string,...) fprintf(stderr, "[surf_integration->%s()] " string,__FUNCTION__ , ##__VA_ARGS__)
+#define VERBOSE_PRINT PRINT
 
 const float DIST_TRESHOLD = 0.1;             // euclidean distance threshold for the SURF descriptor match filter
 const int N_SKIP = 15;                       // gap in images between frameNum matching reset
@@ -35,9 +39,11 @@ using namespace cv::xfeatures2d;
 deque<Mat> prevImgQueue, prevDescsQueue;
 deque<vector<KeyPoint>> prevKpsQueue;
 
+std::vector<double> linspace(double a, double b, int numOfEntries);
+
 
 //Main
-void surfDetectObjectsAndComputeControl(char *img, int imgWidth, int imgHeigth, uint16_t *heading_target)
+void surfDetectObjectsAndComputeControl(char *img, int imgWidth, int imgHeigth, float *heading_target)
 {
     //Get the image
     Mat newImg(imgHeigth, imgWidth, CV_8UC2, img);
@@ -56,7 +62,7 @@ void surfDetectObjectsAndComputeControl(char *img, int imgWidth, int imgHeigth, 
     vector<float> objectYPoints;
 
     // Skip the first N_SKIP images since we cannot match them with anything yet
-    if (prevImgQueue.size > (N_SKIP - 1))
+    if (prevImgQueue.size() > (N_SKIP - 1))
     {
         //Unpack attributes of the oldest image in the queue to match with
         Mat prevImg = prevImgQueue.front();
@@ -148,12 +154,12 @@ void surfDetectObjectsAndComputeControl(char *img, int imgWidth, int imgHeigth, 
                             Canny(newTemplate, newTemplate, 50, 200);
                         }
 
-                        Mat final_frame;
-                        hconcat(resizedPrevTemp, newTemplate, final_frame);
-                        cv::namedWindow("templates", WINDOW_NORMAL);
-                        resizeWindow("templates", 600, 600);
-                        imshow("templates", final_frame);
-                        waitKey(100);
+                        // Mat final_frame;
+                        // hconcat(resizedPrevTemp, newTemplate, final_frame);
+                        // cv::namedWindow("templates", WINDOW_NORMAL);
+                        // resizeWindow("templates", 600, 600);
+                        // imshow("templates", final_frame);
+                        // waitKey(100);
 
                         //Now compare the previous and new template using mean squared error.
                         double MSE = cv::norm(resizedPrevTemp, newTemplate);
@@ -187,16 +193,16 @@ void surfDetectObjectsAndComputeControl(char *img, int imgWidth, int imgHeigth, 
 
             if (avgPos > imgHeigth / 2)
             {
-                *heading_target = -45;
+                *heading_target = -45.f;
             }
             else
             {
-                *heading_target = 45;
+                *heading_target = 45.f;
             }
         }
         else
         {
-            *heading_target = 0;
+            *heading_target = 0.f;
         }
     }
 

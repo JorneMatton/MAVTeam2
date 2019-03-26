@@ -1,6 +1,6 @@
 <!DOCTYPE module SYSTEM "module.dtd">
 
-<module name="surf" dir="surf">
+<module name="test1" dir="surf">
 
   <doc>
     <description>This example shows how opencv can be used on (for example) the Bebop drone.
@@ -13,46 +13,34 @@
     <define name="SURF_FPS" value="4" description="The (maximum) frequency to run the calculations at. If zero, it will max out at the camera frame rate"/>
   </doc>
 
-<settings>
-    <dl_settings>
-      <dl_settings name="SURF">
-        <dl_setting var="DIST_TRESHOLD" min ="0.02" step ="0.05" max="0.3"/> <!-- euclidean distance threshold for the SURF descriptor match filter -->
-        <dl_setting var="N_SKIP" min ="1" step ="1" max="25"/><!--gap in images between frameNum matching reset -->
-        <dl_setting var="TEMP_SIZE_FACTOR" min ="1" step ="0.1" max="5" /><!-- ratio factor (template area / feature_size) for template matching -->
-        <dl_setting var="OBJECT_SCALE_DETECTION_TH" min ="1" step ="0.1" max="1.5"/><!-- scale increase detection treshold -->
-        <dl_setting var="ERROR_DECREASE_FACTOR" min ="0.1" step ="0.1" max="1"/><!-- factor by which the template matching error must have improved compared to scale 1 -->
-        <dl_setting var="TEMP_MATCH_NUM_OF_SCALE_IT" min ="5" step ="1" max="20"  /><!-- number of iterations in the scaling template matching procedure -->
-        <dl_setting var="SURF_HESSIAN_TRESHOLD" min ="50" step ="50" max="10000"  /><!-- threshold of hessian for the SURF detection -> depends on frameNum quality -->
-        <dl_setting var="DECLARE_AS_OBSTACLE_TH" min ="1" step ="1" max="20"/><!-- mininum number of keypoints that have to be detected -->
-      </dl_settings>
-    </dl_settings>
-</settings>
+ 
 
 
   <header>
     <file name="test1.h"/>
   </header>
   <init fun="surf_object_detector_init()"/>
-  <periodic fun="surf_object_detector_periodic()" freq="4"/>
+  <periodic fun="surf_object_detector_periodic()" freq="10"/>
   <makefile target="ap">
     <file name="test1.c"/>
     <file name="surf_integration.cpp"/>
     <flag name="CXXFLAGS" value="I$(PAPARAZZI_SRC)/sw/ext/opencv_bebop/install_arm/include"/>
     
-	<flag name="LDFLAGS" value="L$(PAPARAZZI_HOME)/sw/ext/opencv_bebop/install_arm/lib" />
-	<flag name="LDFLAGS" value="lopencv_world" />
-	<flag name="LDFLAGS" value="L$(PAPARAZZI_HOME)/sw/ext/opencv_bebop/install_arm/share/OpenCV/3rdparty/lib" />
-	<flag name="LDFLAGS" value="llibprotobuf" />
-	<flag name="LDFLAGS" value="llibjpeg-turbo" />
-	<flag name="LDFLAGS" value="llibpng" />
-	<flag name="LDFLAGS" value="llibtiff" />
-	<flag name="LDFLAGS" value="lzlib" />
-	<flag name="LDFLAGS" value="ltegra_hal" />
-	<flag name="LDFLAGS" value="lquirc" />
-	<flag name="LDFLAGS" value="ldl" />
-	<flag name="LDFLAGS" value="lm" />
-	<flag name="LDFLAGS" value="lpthread" />
-	<flag name="LDFLAGS" value="lrt" />
+	<flag name="LDFLAGS" value="L$(PAPARAZZI_HOME)/sw/ext/opencv_bebop/install_arm/lib"/>
+	<flag name="LDFLAGS" value="lopencv_world"/>
+	<flag name="LDFLAGS" value="L$(PAPARAZZI_HOME)/sw/ext/opencv_bebop/install_arm/share/OpenCV/3rdparty/lib"/>
+	<flag name="LDFLAGS" value="llibprotobuf"/>
+	<flag name="LDFLAGS" value="llibjpeg-turbo"/>
+	<flag name="LDFLAGS" value="llibpng"/>
+	<flag name="LDFLAGS" value="llibtiff"/>
+	<flag name="LDFLAGS" value="lzlib"/>
+	<flag name="LDFLAGS" value="lquirc"/>
+	<flag name="LDFLAGS" value="ltegra_hal"/>
+	<flag name="LDFLAGS" value="ldl"/>
+	<flag name="LDFLAGS" value="lm"/>
+	<flag name="LDFLAGS" value="lpthread"/>
+	<flag name="LDFLAGS" value="lrt"/>
+
 
 
   </makefile>
@@ -62,18 +50,37 @@
     
     <flag name="CXXFLAGS" value="I$(PAPARAZZI_SRC)/sw/ext/opencv_bebop/install_pc/include"/>
     
-    <flag name="LDFLAGS" value="L$(PAPARAZZI_HOME)/sw/ext/opencv_bebop/install_pc/lib" />
-    <flag name="LDFLAGS" value="lopencv_world" />
-    <flag name="LDFLAGS" value="L$(PAPARAZZI_HOME)/sw/ext/opencv_bebop/install_pc/share/OpenCV/3rdparty/lib" />
-    <flag name="LDFLAGS" value="lprotobuf" />
-    <flag name="LDFLAGS" value="ljpeg"/>
-    <flag name="LDFLAGS" value="lpng"/>
-    <flag name="LDFLAGS" value="ltiff"/>
-    <flag name="LDFLAGS" value="ldc1394"/>
-    <flag name="LDFLAGS" value="lz"/>
-    <flag name="LDFLAGS" value="ldl"/>
-    <flag name="LDFLAGS" value="lm"/>
-    <flag name="LDFLAGS" value="lpthread"/>
-    <flag name="LDFLAGS" value="lrt"/>
+	<flag name="LDFLAGS" value="L$(PAPARAZZI_HOME)/sw/ext/opencv_bebop/install_pc/lib"/>
+	<flag name="LDFLAGS" value="lopencv_world"/>
+	<flag name="LDFLAGS" value="L$(PAPARAZZI_HOME)/sw/ext/opencv_bebop/install_pc/share/OpenCV/3rdparty/lib"/>
+	<flag name="LDFLAGS" value="llibprotobuf"/>
+	<flag name="LDFLAGS" value="lquirc"/>
+	<flag name="LDFLAGS" value="L/usr/lib/x86_64-linux-gnu"/>
+	<flag name="LDFLAGS" value="ljpeg"/>
+	<flag name="LDFLAGS" value="lpng"/>
+	<flag name="LDFLAGS" value="ltiff"/>
+	<flag name="LDFLAGS" value="lgtk-x11-2.0"/>
+	<flag name="LDFLAGS" value="lgdk-x11-2.0"/>
+	<flag name="LDFLAGS" value="lpangocairo-1.0"/>
+	<flag name="LDFLAGS" value="latk-1.0"/>
+	<flag name="LDFLAGS" value="lcairo"/>
+	<flag name="LDFLAGS" value="lgdk_pixbuf-2.0"/>
+	<flag name="LDFLAGS" value="lgio-2.0"/>
+	<flag name="LDFLAGS" value="lpangoft2-1.0"/>
+	<flag name="LDFLAGS" value="lpango-1.0"/>
+	<flag name="LDFLAGS" value="lgobject-2.0"/>
+	<flag name="LDFLAGS" value="lglib-2.0"/>
+	<flag name="LDFLAGS" value="lfontconfig"/>
+	<flag name="LDFLAGS" value="lgthread-2.0"/>
+	<flag name="LDFLAGS" value="L/usr/lib/x86_64-linux-gnu/hdf5/serial"/>
+	<flag name="LDFLAGS" value="lhdf5"/>
+	<flag name="LDFLAGS" value="lpthread"/>
+	<flag name="LDFLAGS" value="lsz"/>
+	<flag name="LDFLAGS" value="lz"/>
+	<flag name="LDFLAGS" value="ldl"/>
+	<flag name="LDFLAGS" value="lm"/>
+	<flag name="LDFLAGS" value="lfreetype"/>
+	<flag name="LDFLAGS" value="lharfbuzz"/>
+	<flag name="LDFLAGS" value="lrt"/>
   </makefile>
 </module>

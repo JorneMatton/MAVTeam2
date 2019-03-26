@@ -13,8 +13,6 @@ so you have to define which filter to use with the ORANGE_AVOIDER_VISUAL_DETECTI
     </description>
     <define name="ORANGE_AVOIDER_SURF_OBSTACLE_ID" value="ABI_BROADCAST" description="Which SURF message to receive for obstacle avoidance"/>
   </doc>
-
-  
   
   <header>
     <file name="orange_avoider.h"/>
