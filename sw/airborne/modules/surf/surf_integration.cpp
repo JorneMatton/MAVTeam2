@@ -75,7 +75,7 @@ void surfDetectObjectsAndComputeControl(char *img, int imgWidth, int imgHeigth, 
         //Match with the previous image and its descriptors and keypoints
         BFMatcher bf = BFMatcher(NORM_L2, true);
         vector<DMatch> initialMatches, finalizedMatches;
-        if (prevDescs.empty() != true || newDescs.empty() != true)
+        if (prevDescs.empty() != true && newDescs.empty() != true)
         {
             bf.match(prevDescs, newDescs, initialMatches);
         }
