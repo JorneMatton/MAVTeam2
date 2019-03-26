@@ -5,7 +5,7 @@
 extern "C" {
 #endif
 
-vector<KeyPoint> surfGetImageObjects(char *prevImgs, int width, int heigth, char *newImg);
+void surfDetectObjectsAndComputeControl(char *img, int imgWidth, int imgHeigth, uint16_t *heading_target);
 
 #ifdef __cplusplus
 }

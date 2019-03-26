@@ -53,7 +53,8 @@ enum navigation_state_t {
 };
 
 // define settings
-//float oa_color_count_frac = 0.18f;
+
+
 
 // define and initialise global variables
 enum navigation_state_t navigation_state = SEARCH_FOR_SAFE_HEADING;
