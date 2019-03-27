@@ -52,7 +52,7 @@ enum navigation_state_t {
 
 // define settings
 
-
+typedef unsigned short uint16;
 
 // define and initialise global variables
 enum navigation_state_t navigation_state = SEARCH_FOR_SAFE_HEADING;
@@ -79,6 +79,11 @@ zone_middle = zone2;
 zone_right = zone3;
 }
 
+static void send_orange_avoider_data(struct transport_tx *trans , struct link_device *dev){
+  uint16 a = (uint16)zone_left, b = (uint16)zone_middle,c = (uint16)zone_right, d = (uint16)obstacle_free_confidence, e = (uint16)navigation_state;
+  pprz_msg_send_ORANGE_AVOIDER(trans,dev,AC_ID,&a,&b,&c,&d,&e);
+}
+
 /*
  * Initialisation function, setting the colour filter, random seed and heading_increment
  */
@@ -90,13 +95,13 @@ void orange_avoider_init(void)
 
   // bind our colorfilter callbacks to receive the color filter outputs
   AbiBindMsgSURF_OBSTACLE(ORANGE_AVOIDER_SURF_OBSTACLE_ID, &surf_detection_ev, surf_detection_cb);
-  register_periodic_telemetry(DefaultPeriodic,PPRZ_MSG_ID_ORANGE_AVOIDER,orange_avoider_periodic);
+  register_periodic_telemetry(DefaultPeriodic,PPRZ_MSG_ID_ORANGE_AVOIDER,send_orange_avoider_data);
 }
 
 /*
  * Function that checks it is safe to move forwards, and then moves a waypoint forward or changes the heading
  */
-void orange_avoider_periodic(struct transport_tx *trans , struct link_device *dev)
+void orange_avoider_periodic(void)
 {
   // only evaluate our state machine if we are flying
   if(!autopilot_in_flight()){
@@ -104,7 +109,6 @@ void orange_avoider_periodic(struct transport_tx *trans , struct link_device *de
   }
 
   VERBOSE_PRINT("zone1: %d, zone2: %d, zone3: %d,  obstacle free confidence: %d state: %d \n", zone_left, zone_middle, zone_right, obstacle_free_confidence, navigation_state);
-  pprz_msg_send_ORANGE_AVOIDER(trans,dev,AC_ID,&zone_left,&zone_middle,&zone_right,&obstacle_free_confidence,&navigation_state);
   // update our safe confidence using heading_target input (from SURF feature detection)
   if(zone_middle<treshold_middle){
     obstacle_free_confidence++;

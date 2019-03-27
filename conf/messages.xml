@@ -368,10 +368,9 @@
       <field name="alt" type="float" unit="m"/>
     </message>
 
-    <!-- <message name="SURF" id="45">
-      <field name="SURF_exec_time" type="float" unit="s"></field>
-      <field name="SURF_keypoints_amount" type="uint16" unit="-"></field>
-    </message> -->
+    <message name="SURF" id="45">
+      <field name="surf_exec_time" type="float" unit="s"></field>
+    </message>
 
     <message name="BARO_WORDS" id="46">
       <field name="w1"  type="uint16"/>

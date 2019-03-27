@@ -12,8 +12,6 @@
 #include <opencv2/imgcodecs/imgcodecs.hpp>
 #include <deque>
 #include <numeric>
-// #include "subsystems/datalink/telemetry.h"
-#include <time.h>
 
 #include "surf_integration.h"
 
@@ -47,9 +45,6 @@ deque<vector<KeyPoint>> prevKpsQueue;
 
 std::vector<double> linspace(double start, double end, int num);
 void sort_rows(vector<int> keypointsx, int amount_keypoints, int imgWidth, int *zone1, int *zone2, int *zone3);
-// void surfDetectObjectsAndComputeControl(char *img, int imgWidth, int imgHeigth, int *zone1, int *zone2, int *zone3,struct transport_tx * trans , struct link_device * dev);
-// register_periodic_telemetry(DefaultPeriodic,PPRZ_MSG_ID_SURF,surfDetectObjectsAndComputeControl);
-clock_t tstart = clock();
 
 
 //Main
@@ -208,11 +203,6 @@ void surfDetectObjectsAndComputeControl(char *img, int imgWidth, int imgHeigth, 
         std::vector<int> keypointsx(objectYPoints.begin(), objectYPoints.end());
         int amount_keypointsx = keypointsx.size();
         VERBOSE_PRINT("Number of keypoints %d \n", amount_keypointsx);
-
-        // prep vars for telemetry
-        // double timediff = (double)(clock()-tstart)/CLOCKS_PER_SEC;
-        // pprz_send_msg_SURF(trans,dev,AC_ID, &timediff, &amount_keypointsx);
-
 
         // sort keypoints into 3 zones (as defined in the settings)
         sort_rows(keypointsx,amount_keypointsx,imgWidth,zone1,zone2,zone3);
