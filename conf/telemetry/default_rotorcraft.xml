@@ -170,6 +170,18 @@
       <message name="GPS_INT"                period=".25"/>
       <message name="GPS_RTK"               period="1"/>
     </mode>
+    <mode name="ORANGE_AVOIDER" >
+      <message name="zone_left"               period="0.1"/>
+      <message name="zone_middle"                period=".1"/>
+      <message name="zone_right"               period="0.1"/>
+      <message name="obstacle_free_confidence"               period="0.1"/>
+      <message name="navigation_state"               period="0.1"/>
+    </mode>
+    <!-- <mode name="SURF" >
+      <message name="SURF_exec_time"               period="0.05"/>
+      <message name="SURF_keypoints_amount"                period="0.1"/>
+    </mode> -->
+
 
   </process>
 

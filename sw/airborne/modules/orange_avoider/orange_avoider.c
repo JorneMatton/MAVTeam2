@@ -25,6 +25,7 @@
 #include <time.h>
 #include <stdio.h>
 #include "std.h"
+#include "subsystems/datalink/telemetry.h"
 
 
 
@@ -89,12 +90,13 @@ void orange_avoider_init(void)
 
   // bind our colorfilter callbacks to receive the color filter outputs
   AbiBindMsgSURF_OBSTACLE(ORANGE_AVOIDER_SURF_OBSTACLE_ID, &surf_detection_ev, surf_detection_cb);
+  register_periodic_telemetry(DefaultPeriodic,PPRZ_MSG_ID_ORANGE_AVOIDER,orange_avoider_periodic);
 }
 
 /*
  * Function that checks it is safe to move forwards, and then moves a waypoint forward or changes the heading
  */
-void orange_avoider_periodic(void)
+void orange_avoider_periodic(struct transport_tx *trans , struct link_device *dev)
 {
   // only evaluate our state machine if we are flying
   if(!autopilot_in_flight()){
@@ -102,7 +104,7 @@ void orange_avoider_periodic(void)
   }
 
   VERBOSE_PRINT("zone1: %d, zone2: %d, zone3: %d,  obstacle free confidence: %d state: %d \n", zone_left, zone_middle, zone_right, obstacle_free_confidence, navigation_state);
-
+  pprz_msg_send_ORANGE_AVOIDER(trans,dev,AC_ID,&zone_left,&zone_middle,&zone_right,&obstacle_free_confidence,&navigation_state);
   // update our safe confidence using heading_target input (from SURF feature detection)
   if(zone_middle<treshold_middle){
     obstacle_free_confidence++;
