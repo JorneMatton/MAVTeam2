@@ -37,10 +37,15 @@
 #define VERBOSE_PRINT(...)
 #endif
 
+float point_degree = 60.0;
+float movex = 0.8947;
+float movey = 0.4474;
+
 uint8_t moveWaypointForward(uint8_t waypoint, float distanceMeters);
 uint8_t moveWaypoint(uint8_t waypoint, struct EnuCoor_i *new_coor);
 uint8_t increase_nav_heading(float incrementDegrees);
 uint8_t chooseRandomIncrementAvoidance(void);
+uint8_t point_to(float point_degree);
 
 enum navigation_state_t {
   SAFE,
@@ -116,6 +121,9 @@ void orange_avoider_periodic(void)
   switch (navigation_state){
     case SAFE:
       // Move waypoint forward
+      if (stateGetNedToBodyEulers_f()->psi > RadOfDeg(point_degree + 2) || stateGetNedToBodyEulers_f()->psi < RadOfDeg(point_degree - 2)){
+         point_to(point_degree);
+      }
       moveWaypointForward(WP_TRAJECTORY, 1.5f * moveDistance);
       if (!InsideObstacleZone(WaypointX(WP_TRAJECTORY),WaypointY(WP_TRAJECTORY))){
         navigation_state = OUT_OF_BOUNDS;
@@ -183,6 +191,22 @@ uint8_t increase_nav_heading(float incrementDegrees)
   return false;
 }
 
+uint8_t point_to(float point_degree)
+{
+   float new_heading = RadOfDeg(point_degree);
+
+   // normalize heading to [-pi, pi]
+   FLOAT_ANGLE_NORMALIZE(new_heading);
+
+   // set heading
+   nav_heading = ANGLE_BFP_OF_REAL(new_heading);
+
+   VERBOSE_PRINT("Set heading to %f\n", DegOfRad(new_heading));
+   return false;
+}
+
+
+
 /*
  * Calculates coordinates of a distance of 'distanceMeters' forward w.r.t. current position and heading
  */
@@ -191,9 +215,9 @@ static uint8_t calculateForwards(struct EnuCoor_i *new_coor, float distanceMeter
   float heading  = stateGetNedToBodyEulers_f()->psi;
 
   // Now determine where to place the waypoint you want to go to
-  new_coor->x = stateGetPositionEnu_i()->x + POS_BFP_OF_REAL(sinf(heading) * (distanceMeters));
-  new_coor->y = stateGetPositionEnu_i()->y + POS_BFP_OF_REAL(cosf(heading) * (distanceMeters));
-  VERBOSE_PRINT("Calculated %f m forward position. x: %f  y: %f based on pos(%f, %f) and heading(%f)\n", distanceMeters,	
+  new_coor->x = stateGetPositionEnu_i()->x + POS_BFP_OF_REAL(movex * (distanceMeters));
+  new_coor->y = stateGetPositionEnu_i()->y + POS_BFP_OF_REAL(movey * (distanceMeters));
+  VERBOSE_PRINT("Calculated %f m forward position. x: %f  y: %f based on pos(%f, %f) and heading(%f)\n", distanceMeters,
                 POS_FLOAT_OF_BFP(new_coor->x), POS_FLOAT_OF_BFP(new_coor->y),
                 stateGetPositionEnu_f()->x, stateGetPositionEnu_f()->y, DegOfRad(heading));
   return false;
@@ -236,4 +260,3 @@ uint8_t chooseRandomIncrementAvoidance(void)
   }
   return false;
 }
-
