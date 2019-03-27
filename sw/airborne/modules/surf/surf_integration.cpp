@@ -43,7 +43,7 @@ using namespace cv::xfeatures2d;
 deque<Mat> prevImgQueue, prevDescsQueue;
 deque<vector<KeyPoint>> prevKpsQueue;
 
-std::vector<double> linspace(double a, double b, int numOfEntries);
+std::vector<double> linspace(double start, double end, int num);
 void sort_rows(vector<int> keypointsx, int amount_keypoints, int imgWidth, int *zone1, int *zone2, int *zone3);
 
 
@@ -202,26 +202,9 @@ void surfDetectObjectsAndComputeControl(char *img, int imgWidth, int imgHeigth, 
         // prepare variables for sorting
         std::vector<int> keypointsx(objectYPoints.begin(), objectYPoints.end());
         int amount_keypointsx = keypointsx.size();
+        VERBOSE_PRINT("Number of keypoints %d \n", amount_keypointsx);
         // sort keypoints into 3 zones (as defined in the settings)
         sort_rows(keypointsx,amount_keypointsx,imgWidth,zone1,zone2,zone3);
-
-        // if (objectYPoints.size() > DECLARE_AS_OBSTACLE_TH)
-        // {
-        //     float avgPos = std::accumulate(objectYPoints.begin(), objectYPoints.end(), 0.0f) / objectYPoints.size();
-
-        //     if (avgPos > imgHeigth / 2)
-        //     {
-        //         *heading_target = -45.f;
-        //     }
-        //     else
-        //     {
-        //         *heading_target = 45.f;
-        //     }
-        // }
-        // else
-        // {
-        //     *heading_target = 0.f;
-        // }
     }
 
     //Add the new gray image, new descriptors and new keypoints to the queue
@@ -252,6 +235,7 @@ std::vector<double> linspace(double start, double end, int num)
     }
     linspaced.push_back(end); // I want to ensure that start and end
                               // are exactly the same as the input
+
     return linspaced;
 }
 

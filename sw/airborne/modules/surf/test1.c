@@ -2,6 +2,7 @@
 #include "subsystems/abi.h"
 #include "std.h"
 #include <stdio.h>
+#include <time.h>
 
 #include "pthread.h"
 #include "surf_integration.h"
@@ -24,7 +25,11 @@ static struct image_t *surf_object_detector(struct image_t *img)
 {
   int zone1 = 0, zone2 = 0, zone3 = 0;
 
+  clock_t tstart = clock();
+
   surfDetectObjectsAndComputeControl((char *) img->buf, img->w, img->h, &zone1, &zone2, &zone3);
+
+  VERBOSE_PRINT("time taken: %.2fs \n", (double)(clock()-tstart)/CLOCKS_PER_SEC);
   
   pthread_mutex_lock(&mutex);
   global_zone1 = zone1;
@@ -46,6 +51,7 @@ void surf_object_detector_init(void)
 void surf_object_detector_periodic(void)
 {
   int local_zone1, local_zone2, local_zone3;
+
 
   pthread_mutex_lock(&mutex);  
   local_zone1 = global_zone1;

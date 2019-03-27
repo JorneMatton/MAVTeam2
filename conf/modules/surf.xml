@@ -20,7 +20,7 @@
     <file name="test1.h"/>
   </header>
   <init fun="surf_object_detector_init()"/>
-  <periodic fun="surf_object_detector_periodic()" freq="4"/>
+  <periodic fun="surf_object_detector_periodic()" freq="8"/>
   <makefile target="ap">
     <file name="test1.c"/>
     <file name="surf_integration.cpp"/>
