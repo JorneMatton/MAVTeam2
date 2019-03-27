@@ -6,7 +6,7 @@ extern "C" {
 #endif
 
 
-void surfDetectObjectsAndComputeControl(char *img, int imgWidth, int imgHeigth, float *heading_target);
+void surfDetectObjectsAndComputeControl(char *img, int imgWidth, int imgHeigth, int *zone1, int *zone2, int *zone3);
 
 #ifdef __cplusplus
 }

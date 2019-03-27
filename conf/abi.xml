@@ -192,7 +192,9 @@
     </message>
 
     <message name="SURF_OBSTACLE" id="28">
-      <field name="heading_target"  type="float">obstacle avoidance direction</field>
+      <field name="zone1"  type="int">Number of detected keypoints in zone 1</field>
+      <field name="zone2"  type="int">Number of detected keypoints in zone 2</field>
+      <field name="zone3"  type="int">Number of detected keypoints in zone 3</field>
     </message>
 
   </msg_class>

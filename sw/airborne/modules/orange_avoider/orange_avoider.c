@@ -60,7 +60,10 @@ float heading_increment = 5.f;          // heading angle increment [deg]
 float maxDistance = 2.25;               // max waypoint displacement [m]
 
 
-float heading_update = 0.f;
+int zone_left,zone_middle,zone_right;              // the three detection zones where the keypoints determined by surf are counted
+int treshold_left = 5;                  // treshold values for the detection zones
+int treshold_middle = 4;
+int treshold_right = 5;
 
 const int16_t max_trajectory_confidence = 5; // number of consecutive negative object detections to be sure we are obstacle free
 
@@ -68,9 +71,11 @@ const int16_t max_trajectory_confidence = 5; // number of consecutive negative o
 #define ORANGE_AVOIDER_SURF_OBSTACLE_ID ABI_BROADCAST
 #endif
 static abi_event surf_detection_ev;
-static void surf_detection_cb(uint8_t __attribute__((unused)) sender_id, float heading_target)
+static void surf_detection_cb(uint8_t __attribute__((unused)) sender_id, int zone1, int zone2, int zone3)
 {
-heading_update = heading_target;
+zone_left = zone1;
+zone_middle = zone2;
+zone_right = zone3;
 }
 
 /*
@@ -96,16 +101,13 @@ void orange_avoider_periodic(void)
     return;
   }
 
-  // compute current color thresholds
-  //int32_t color_count_threshold = oa_color_count_frac * front_camera.output_size.w * front_camera.output_size.h;
-
-  VERBOSE_PRINT("Heading: %f  obstacle free confidence: %d state: %d \n", heading_update, obstacle_free_confidence, navigation_state);
+  VERBOSE_PRINT("zone1: %d, zone2: %d, zone3: %d,  obstacle free confidence: %d state: %d \n", zone_left, zone_middle, zone_right, obstacle_free_confidence, navigation_state);
 
   // update our safe confidence using heading_target input (from SURF feature detection)
-  if(heading_update==0){
+  if(zone_middle<treshold_middle){
     obstacle_free_confidence++;
   } else {
-    obstacle_free_confidence -= 2;  // be more cautious with positive obstacle detections
+    obstacle_free_confidence -= 1;  // be more cautious with positive obstacle detections
   }
 
   // bound obstacle_free_confidence
@@ -184,7 +186,7 @@ uint8_t increase_nav_heading(float incrementDegrees)
   // set heading
   nav_heading = ANGLE_BFP_OF_REAL(new_heading);
 
-  VERBOSE_PRINT("Increasing heading to %f\n", DegOfRad(new_heading));
+  // VERBOSE_PRINT("Increasing heading to %f\n", DegOfRad(new_heading));
   return false;
 }
 
@@ -198,10 +200,10 @@ static uint8_t calculateForwards(struct EnuCoor_i *new_coor, float distanceMeter
   // Now determine where to place the waypoint you want to go to
   new_coor->x = stateGetPositionEnu_i()->x + POS_BFP_OF_REAL(sinf(heading) * (distanceMeters));
   new_coor->y = stateGetPositionEnu_i()->y + POS_BFP_OF_REAL(cosf(heading) * (distanceMeters));
-  VERBOSE_PRINT("Calculated %f m forward position. x: %f  y: %f based on pos(%f, %f) and heading(%f)\n", distanceMeters,	
-                POS_FLOAT_OF_BFP(new_coor->x), POS_FLOAT_OF_BFP(new_coor->y),
-                stateGetPositionEnu_f()->x, stateGetPositionEnu_f()->y, DegOfRad(heading));
-  VERBOSE_PRINT("distance is%f", distanceMeters);
+  // VERBOSE_PRINT("Calculated %f m forward position. x: %f  y: %f based on pos(%f, %f) and heading(%f)\n", distanceMeters,	
+                // POS_FLOAT_OF_BFP(new_coor->x), POS_FLOAT_OF_BFP(new_coor->y),
+                // stateGetPositionEnu_f()->x, stateGetPositionEnu_f()->y, DegOfRad(heading));
+  // VERBOSE_PRINT("distance is%f", distanceMeters);
   return false;
  
 }
@@ -225,8 +227,8 @@ static uint8_t calculateForwards(struct EnuCoor_i *new_coor, float distanceMeter
  */
 uint8_t moveWaypoint(uint8_t waypoint, struct EnuCoor_i *new_coor)
 {
-  VERBOSE_PRINT("Moving waypoint %d to x:%f y:%f\n", waypoint, POS_FLOAT_OF_BFP(new_coor->x),
-                POS_FLOAT_OF_BFP(new_coor->y));
+  // VERBOSE_PRINT("Moving waypoint %d to x:%f y:%f\n", waypoint, POS_FLOAT_OF_BFP(new_coor->x),
+                // POS_FLOAT_OF_BFP(new_coor->y));
   waypoint_set_xy_i(waypoint, new_coor->x, new_coor->y);
   return false;
 }
@@ -241,6 +243,8 @@ uint8_t moveWaypointForward(uint8_t waypoint, float distanceMeters)
   moveWaypoint(waypoint, &new_coor);
   return false;
 }
+
+
 // // this moves the waypoint to the right
 // uint8_t moveWaypointSideways(uint8_t waypoint)
 // {
@@ -255,9 +259,16 @@ uint8_t moveWaypointForward(uint8_t waypoint, float distanceMeters)
  */
 uint8_t chooseIncrementAvoidance(void)
 {
-  if(heading_update!=0){
-    heading_increment = heading_update;
-    VERBOSE_PRINT("Set avoidance increment to: %f\n", heading_increment);
+  if (zone_left < treshold_left || zone_right < treshold_right){
+    if(zone_left<zone_right){
+      heading_increment = -15.f;
+    }
+    else{
+      heading_increment = 15.f;
+    }
+  }
+  else{
+    heading_increment = 180.f;
   }
   return false;
 }

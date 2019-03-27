@@ -10,7 +10,7 @@
     </description>
 
     <define name="COLORFILTER_CAMERA" value="front_camera|bottom_camera" description="Video device to use"/>
-    <define name="SURF_FPS" value="4" description="The (maximum) frequency to run the calculations at. If zero, it will max out at the camera frame rate"/>
+    <define name="SURF_FPS" value="0" description="The (maximum) frequency to run the calculations at. If zero, it will max out at the camera frame rate"/>
   </doc>
 
  
@@ -20,7 +20,7 @@
     <file name="test1.h"/>
   </header>
   <init fun="surf_object_detector_init()"/>
-  <periodic fun="surf_object_detector_periodic()" freq="10"/>
+  <periodic fun="surf_object_detector_periodic()" freq="4"/>
   <makefile target="ap">
     <file name="test1.c"/>
     <file name="surf_integration.cpp"/>

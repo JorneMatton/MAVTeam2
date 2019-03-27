@@ -10,24 +10,26 @@
 static pthread_mutex_t mutex; 
 
 #ifndef SURF_FPS
-#define SURF_FPS 4       ///< Default FPS (zero means run at camera fps)
+#define SURF_FPS 0       ///< Default FPS (zero means run at camera fps)
 #endif
 
 #define PRINT(string,...) fprintf(stderr, "[test1->%s()] " string,__FUNCTION__ , ##__VA_ARGS__)
 #define VERBOSE_PRINT PRINT
 
 
-float global_heading_target; //variable that will be shared between video thread and autopilot thread
+int global_zone1, global_zone2, global_zone3; //variables that will be shared between video thread and autopilot thread
 
 //Video callback
 static struct image_t *surf_object_detector(struct image_t *img)
 {
-  float heading_target;
+  int zone1 = 0, zone2 = 0, zone3 = 0;
 
-  surfDetectObjectsAndComputeControl((char *) img->buf, img->w, img->h, &heading_target);
+  surfDetectObjectsAndComputeControl((char *) img->buf, img->w, img->h, &zone1, &zone2, &zone3);
   
   pthread_mutex_lock(&mutex);
-  global_heading_target = heading_target;
+  global_zone1 = zone1;
+  global_zone2 = zone2;
+  global_zone3 = zone3;
   pthread_mutex_unlock(&mutex);
 
   return img;
@@ -43,14 +45,14 @@ void surf_object_detector_init(void)
 //Surf module periodic function (executed in the autopilotthread)
 void surf_object_detector_periodic(void)
 {
-  float local_heading_target;
+  int local_zone1, local_zone2, local_zone3;
 
   pthread_mutex_lock(&mutex);  
-  local_heading_target = global_heading_target;
+  local_zone1 = global_zone1;
+  local_zone2 = global_zone2;
+  local_zone3 = global_zone3;
   pthread_mutex_unlock(&mutex);
 
-  VERBOSE_PRINT("Local heading target: %f \n", local_heading_target);
-
-  AbiSendMsgSURF_OBSTACLE(SURF_OBJECT_DETECTION1_ID,local_heading_target);
+  AbiSendMsgSURF_OBSTACLE(SURF_OBJECT_DETECTION1_ID, local_zone1, local_zone2, local_zone3);
   
 }
