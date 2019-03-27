@@ -19,16 +19,16 @@
 #define PRINT(string,...) fprintf(stderr, "[surf_integration->%s()] " string,__FUNCTION__ , ##__VA_ARGS__)
 #define VERBOSE_PRINT PRINT
 
-const float DIST_TRESHOLD = 0.1;             // euclidean distance threshold for the SURF descriptor match filter
-const int N_SKIP = 15;                       // gap in images between frameNum matching reset
-const float TEMP_SIZE_FACTOR = 2.6;          // ratio factor (template area / feature_size) for template matching
+const float DIST_TRESHOLD = 0.25;             // euclidean distance threshold for the SURF descriptor match filter
+const int N_SKIP = 2;                        // gap in images between frameNum matching reset
+const float TEMP_SIZE_FACTOR = 1.5;          // ratio factor (template area / feature_size) for template matching
 const float OBJECT_SCALE_DETECTION_TH = 1.2; // scale increase detection treshold
-const float ERROR_DECREASE_FACTOR = 0.8;     // factor by which the template matching error must have improved compared to scale 1
-const int TEMP_MATCH_NUM_OF_SCALE_IT = 15;   // number of iterations in the scaling template matching procedure
-const double SURF_HESSIAN_TRESHOLD = 10;   // threshold of hessian for the SURF detection -> depends on frameNum quality
-const bool SURF_IS_UPRIGHT = true;           // Use U-surf to disregard rotation invariance for performance boost
+const float ERROR_DECREASE_FACTOR = 0.6;     // factor by which the template matching error must have improved compared to scale 1
+const int TEMP_MATCH_NUM_OF_SCALE_IT = 10;   // number of iterations in the scaling template matching procedure
+const double SURF_HESSIAN_TRESHOLD = 50;   // threshold of hessian for the SURF detection -> depends on frameNum quality
+const bool SURF_IS_UPRIGHT = false;          // Use U-surf to disregard rotation invariance for performance boost
 const bool SURF_IS_EXTENDED = false;         // set the surf from 64 dimensions to 128 (slower matching)
-const bool EDGE_DETECTOR_IS_ON = false;      // Apply edge detector at template matching
+const bool EDGE_DETECTOR_IS_ON = false;     // Apply edge detector at template matching
 const int DECLARE_AS_OBSTACLE_TH = 3; //mininum number of keypoints that have to be detected
 
 const float OUTER_ZONES_FRAC = 0.5; //fraction of the images the outer zones take in
@@ -57,11 +57,17 @@ void surfDetectObjectsAndComputeControl(char *img, int imgWidth, int imgHeigth, 
     Mat grayNewImg;
     cvtColor(newImg, grayNewImg, CV_YUV2GRAY_Y422);
 
+    //Define region of interest
+    Mat mask = Mat::zeros(newImg.size(), CV_8U);  // type of mask is CV_8U
+    cv::Rect region(imgWidth/2-240/2,imgHeigth/2-240/2, 240,240);
+    Mat roi(mask,region);
+    roi = Scalar(255); 
+
     //Obtain surf features
     Ptr<SURF> detector = SURF::create(SURF_HESSIAN_TRESHOLD, 4, 3, SURF_IS_EXTENDED, SURF_IS_UPRIGHT);
     vector<KeyPoint> newKps;
     Mat newDescs;
-    detector->detectAndCompute(grayNewImg, noArray(), newKps, newDescs);
+    detector->detectAndCompute(grayNewImg, mask, newKps, newDescs);
 
     //we will store object keypoints in here
     vector<float> objectYPoints;
@@ -80,7 +86,7 @@ void surfDetectObjectsAndComputeControl(char *img, int imgWidth, int imgHeigth, 
         //Match with the previous image and its descriptors and keypoints
         BFMatcher bf = BFMatcher(NORM_L2, true);
         vector<DMatch> initialMatches, finalizedMatches;
-        if (prevDescs.empty() != true || newDescs.empty() != true)
+        if (prevDescs.empty() != true && newDescs.empty() != true)
         {
             bf.match(prevDescs, newDescs, initialMatches);
         }
@@ -166,9 +172,11 @@ void surfDetectObjectsAndComputeControl(char *img, int imgWidth, int imgHeigth, 
                         // imshow("templates", final_frame);
                         // waitKey(100);
 
-                        //Now compare the previous and new template using mean squared error.
-                        double MSE = cv::norm(resizedPrevTemp, newTemplate);
-                        float err = MSE * MSE / resizedPrevTemp.total();
+                        // //Now compare the previous and new template using mean squared error.
+                        // double MSE = cv::norm(resizedPrevTemp, newTemplate);
+                        // float err = MSE * MSE / resizedPrevTemp.total();                        
+                        double MSE = cv::norm(resizedPrevTemp, newTemplate, NORM_L1);
+                        float err = MSE/ (scale*scale);
 
                         // if the error is lower, update the best match for the previous template
                         if (err < lowestError)
