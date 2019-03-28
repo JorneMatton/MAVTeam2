@@ -76,23 +76,23 @@ enum navigation_state_t {
 
 // define settings
 
-float oa_color_count_frac = 0.1f;
+float oa_color_count_frac = 0.15f;
 
 
 
 // define and initialise global variables
 enum navigation_state_t navigation_state = SEARCH_FOR_SAFE_HEADING;
 int obstacle_free_confidence = 0; // a measure of how certain we are that the way ahead is safe.
-float heading_increment = 10.f;          // heading angle increment [deg]
+float heading_increment = 5.f;          // heading angle increment [deg]
 float maxDistance = 2.25;               // max waypoint displacement [m]
 int32_t color_count = 0; // orange color count from color filter for obstacle detection
 
 typedef unsigned short uint16;
 
 int zone_left,zone_middle,zone_right;              // the three detection zones where the keypoints determined by surf are counted
-int treshold_left = 4;                  // treshold values for the detection zones
-int treshold_middle = 3;
-int treshold_right = 4;
+const int treshold_left = 10;                  // treshold values for the detection zones
+const int treshold_middle = 8;
+const int treshold_right = 10;
 
 const int16_t max_trajectory_confidence = 5; // number of consecutive negative object detections to be sure we are obstacle free
 

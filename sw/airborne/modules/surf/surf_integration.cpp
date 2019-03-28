@@ -19,14 +19,14 @@
 #define PRINT(string,...) fprintf(stderr, "[surf_integration->%s()] " string,__FUNCTION__ , ##__VA_ARGS__)
 #define VERBOSE_PRINT PRINT
 
-const float DIST_TRESHOLD = 0.25;             // euclidean distance threshold for the SURF descriptor match filter
-const int N_SKIP = 2;                        // gap in images between frameNum matching reset
+const float DIST_TRESHOLD = 0.1;             // euclidean distance threshold for the SURF descriptor match filter
+const int N_SKIP = 10;                        // gap in images between frameNum matching reset
 const float TEMP_SIZE_FACTOR = 1.5;          // ratio factor (template area / feature_size) for template matching
 const float OBJECT_SCALE_DETECTION_TH = 1.2; // scale increase detection treshold
 const float ERROR_DECREASE_FACTOR = 0.6;     // factor by which the template matching error must have improved compared to scale 1
 const int TEMP_MATCH_NUM_OF_SCALE_IT = 10;   // number of iterations in the scaling template matching procedure
 const double SURF_HESSIAN_TRESHOLD = 50;   // threshold of hessian for the SURF detection -> depends on frameNum quality
-const bool SURF_IS_UPRIGHT = false;          // Use U-surf to disregard rotation invariance for performance boost
+const bool SURF_IS_UPRIGHT = true;          // Use U-surf to disregard rotation invariance for performance boost
 const bool SURF_IS_EXTENDED = false;         // set the surf from 64 dimensions to 128 (slower matching)
 const bool EDGE_DETECTOR_IS_ON = false;     // Apply edge detector at template matching
 const int DECLARE_AS_OBSTACLE_TH = 3; //mininum number of keypoints that have to be detected
@@ -110,6 +110,13 @@ void surfDetectObjectsAndComputeControl(char *img, int imgWidth, int imgHeigth, 
                 finalPrevKps.push_back(prevKps[initialMatches[idx].queryIdx]);
             }
         }
+
+        cout<<"finalizedMatches size"<<finalizedMatches.size()<<endl;
+        Mat img_matches;
+        drawMatches(prevImg,prevKps,grayNewImg,newKps,finalizedMatches,img_matches);
+        cv::namedWindow("matches",WINDOW_NORMAL);
+        resizeWindow("matches", 1600,1600);
+        imshow("matches", img_matches );
 
         //Confirm scale by template matching
         //First create template image from the previous image
@@ -204,10 +211,10 @@ void surfDetectObjectsAndComputeControl(char *img, int imgWidth, int imgHeigth, 
         // prepare variables for sorting
         std::vector<int> keypointsx(objectYPoints.begin(), objectYPoints.end());
         int amount_keypointsx = keypointsx.size();
-        VERBOSE_PRINT("Number of keypoints %d \n", amount_keypointsx);
+        VERBOSE_PRINT("Number of objects %d \n", amount_keypointsx);
 
         // sort keypoints into 3 zones (as defined in the settings)
-        sort_rows(keypointsx,amount_keypointsx,imgWidth,zone1,zone2,zone3);
+        sort_rows(keypointsx,amount_keypointsx,imgHeigth,zone1,zone2,zone3);
 
         ///////////////////////////////////////////////////////////////////////
 
@@ -280,6 +287,8 @@ void sort_rows(vector<int> keypointsx, int amount_keypoints, int imgWidth, int *
         int border4  = imgWidth-outer_zones_width;
         int border5 = (int)(0.5 * imgWidth + inner_zone_width / 2);
         int border6 = imgWidth;
+
+        VERBOSE_PRINT("borders, %d,%d,%d,%d,%d,%d \n",border1,border2,border3,border4,border5,border6);
 
         for(int i = 0; i < amount_keypoints; i++)
         {
