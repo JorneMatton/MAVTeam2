@@ -226,7 +226,7 @@ void orange_avoider_periodic(void)
     case OBSTACLE_FOUND:
 
 		  chooseIncrementAvoidance();
-      obstacle_free_confidence = 3;    
+      obstacle_free_confidence = 3;
       navigation_state = SAFE;
       break;
 
@@ -310,34 +310,41 @@ uint8_t moveWaypointForward(uint8_t waypoint, float movex, float movey, float er
 uint8_t chooseIncrementAvoidance(void)
 {
   if ((error_b*error_b < lane_confidence * lane_confidence * lane_gain * lane_gain) && (zone_left < treshold_left || zone_right < treshold_right)){
+     VERBOSE_PRINT("HERE1")
      badlanes[lane_b] = 1;
     if(zone_left<=zone_right){
       if (movex > 0){ // flying to the right
          lane_b++;
+         VERBOSE_PRINT("lane changed to: %i", lane_b);
       } else{
          lane_b--;
+         VERBOSE_PRINT("lane changed to: %i", lane_b);
       }
     }
     else if(zone_left>zone_right){
       if (movex > 0){
          lane_b--;
+         VERBOSE_PRINT("lane changed to: %i", lane_b);
       } else{
          lane_b++;
+         VERBOSE_PRINT("lane changed to: %i", lane_b);
       }
-    } 
-    if (lane_b > 3){
-      lane_b = 1;
-      }
-    else if(lane_b < -3){
-      lane_b = -1;
-      } 
+    }
   }
   else{
-    movex = -movex;
-    movey = -movey;
-    point_degree = point_degree + 180;
-    VERBOSE_PRINT("Turn around\n");
-    }
+     movex = -movex;
+     movey = -movey;
+     point_degree = point_degree + 180;
+     VERBOSE_PRINT("Turn around\n");
+  }
+  if (lane_b > 3){
+     lane_b = 1;
+     VERBOSE_PRINT("lane changed to: %i", lane_b);
+   }
+   else if(lane_b < -3){
+      lane_b = -1;
+      VERBOSE_PRINT("lane changed to: %i", lane_b);
+   }
   return false;
 }
 
