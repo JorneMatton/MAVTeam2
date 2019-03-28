@@ -37,6 +37,8 @@
 #define VERBOSE_PRINT(...)
 #endif
 
+#define length 9
+int badlanes[length] = {0, 0, 0, 0, 0, 0, 0, 0, 0};
 float point_degree = 60.0;
 float movex = 6.8/7.60;
 float movey = 3.4/7.60;
@@ -239,7 +241,7 @@ static uint8_t calculateForwards(struct EnuCoor_i *new_coor, float distanceMeter
 
   // Now determine where to place the waypoint you want to go to
   new_coor->x = stateGetPositionEnu_i()->x + POS_BFP_OF_REAL(movex/(1+error_b*error_b));
-  new_coor->y = stateGetPositionEnu_i()->y + POS_BFP_OF_REAL(movey\(1+error_b*error_b) + error_b);
+  new_coor->y = stateGetPositionEnu_i()->y + POS_BFP_OF_REAL(movey/(1+error_b*error_b) + error_b);
   VERBOSE_PRINT("point: x: %f,  y: %f based on pos(%f, %f) and heading(%f) with %f\n", POS_FLOAT_OF_BFP(new_coor->x),  POS_FLOAT_OF_BFP(new_coor->y), stateGetPositionEnu_f()->x, stateGetPositionEnu_f()->y, DegOfRad(heading), POS_BFP_OF_REAL(movex));
   return false;
 }
@@ -284,7 +286,8 @@ uint8_t chooseRandomIncrementAvoidance(void)
 
 uint8_t chooseIncrementAvoidance(void)
 {
-  if (error_b*error_b < lane_confidence * lane_confidence * lane_gain * lane_gain && zone_left < treshold_left || zone_right < treshold_right){
+  if ((error_b*error_b < lane_confidence * lane_confidence * lane_gain * lane_gain) && (zone_left < treshold_left || zone_right < treshold_right)){
+     badlanes[lane_b] = 1;
     if(zone_left<zone_right){
       if (movex > 0){ // flying to the right
          lane_b++;
@@ -299,12 +302,17 @@ uint8_t chooseIncrementAvoidance(void)
          lane_b++;
       }
     }
+    if (lane_b > 3){
+      lane_b = 1;
+   } else if(lane_b < -3){
+      lane_b = -1;
+   }
   }
   else{
      movex = -movex;
      movey = -movey;
      point_degree = point_degree + 180;
-     VERBOSE_PRINT("Turn around")
+     VERBOSE_PRINT("Turn around");
   }
   return false;
 }
