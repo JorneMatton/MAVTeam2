@@ -49,6 +49,7 @@ int counter = 0;
 float error_b = 0.0;
 int lane_b = 1;
 int lane_gain = 2;
+float lane_confidence = 0.25;
 
 uint8_t moveWaypointForward(uint8_t waypoint, float distanceMeters, float movex, float movey, float error_b);
 uint8_t moveWaypoint(uint8_t waypoint, struct EnuCoor_i *new_coor);
@@ -283,16 +284,16 @@ uint8_t chooseRandomIncrementAvoidance(void)
 
 uint8_t chooseIncrementAvoidance(void)
 {
-  if (zone_left < treshold_left || zone_right < treshold_right){
+  if (error_b*error_b < lane_confidence * lane_confidence * lane_gain * lane_gain && zone_left < treshold_left || zone_right < treshold_right){
     if(zone_left<zone_right){
-      if (movex > 0 || error_b < 0.1 * lane_gain){ // flying to the right
+      if (movex > 0){ // flying to the right
          lane_b++;
       } else{
          lane_b--;
       }
     }
     else{
-      if (movex > 0 || error_b < 0.1 * lane_gain){
+      if (movex > 0){
          lane_b--;
       } else{
          lane_b++;
@@ -300,7 +301,10 @@ uint8_t chooseIncrementAvoidance(void)
     }
   }
   else{
-    heading_increment = 180.f;
+     movex = -movex;
+     movey = -movey;
+     point_degree = point_degree + 180;
+     VERBOSE_PRINT("Turn around")
   }
   return false;
 }
