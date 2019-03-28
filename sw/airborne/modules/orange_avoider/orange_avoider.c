@@ -49,7 +49,7 @@ float margin = 4.0;
 float slope = 6.8/3.2;
 int counter = 0;
 float error_b = 0.0;
-int lane_b = 1;
+int lane_b = 0;
 int lane_gain = 2;
 float lane_confidence = 0.25;
 
@@ -288,31 +288,27 @@ uint8_t chooseIncrementAvoidance(void)
 {
   if ((error_b*error_b < lane_confidence * lane_confidence * lane_gain * lane_gain) && (zone_left < treshold_left || zone_right < treshold_right)){
      badlanes[lane_b] = 1;
-    if(zone_left<zone_right){
-      if (movex > 0){ // flying to the right
-         lane_b++;
+     if(zone_left<zone_right){
+        if (movex > 0){
+           lane_b++;
+         } else{
+            lane_b--;
+         }
+      } else if(zone_left>zone_right){
+         if (movex > 0){
+            lane_b--;
+         } else{
+            lane_b++;
+         }
       } else{
-         lane_b--;
+        movex = -movex;
+        movey = -movey;
+        point_degree = point_degree + 180;
+        VERBOSE_PRINT("Turn around");
+      } if (lane_b > 3){
+         lane_b = 1;
+      } else if(lane_b < -3){
+         lane_b = -1;
       }
-    }
-    else{
-      if (movex > 0){
-         lane_b--;
-      } else{
-         lane_b++;
-      }
-    }
-    if (lane_b > 3){
-      lane_b = 1;
-   } else if(lane_b < -3){
-      lane_b = -1;
+   return false;
    }
-  }
-  else{
-     movex = -movex;
-     movey = -movey;
-     point_degree = point_degree + 180;
-     VERBOSE_PRINT("Turn around");
-  }
-  return false;
-}
