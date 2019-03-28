@@ -10,9 +10,17 @@ The avoidance strategy is to simply count the total number of orange pixels. Whe
 
 The color filter settings are set using the cv_detect_color_object. This module can run multiple filters simultaneously
 so you have to define which filter to use with the ORANGE_AVOIDER_VISUAL_DETECTION_ID setting.
-    </description>
+  </description>
     <define name="ORANGE_AVOIDER_SURF_OBSTACLE_ID" value="ABI_BROADCAST" description="Which SURF message to receive for obstacle avoidance"/>
   </doc>
+
+  <settings>
+    <dl_settings>
+      <dl_settings NAME="ObstacleAvoider">
+        <dl_setting var="oa_color_count_frac" min="0.05" step="0.01" max="0.2"/>
+      </dl_settings>
+    </dl_settings>
+  </settings>
   
   <header>
     <file name="orange_avoider.h"/>

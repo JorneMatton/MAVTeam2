@@ -59,6 +59,9 @@
 #define ORANGE_AVOIDER_CR_MAX 249
 #endif
 
+#define AMOUNT_LANES 9
+
+int badlanes[AMOUNT_LANES] = {0, 0, 0, 0, 0, 0, 0, 0, 0};
 float point_degree = 60.0;
 float movex = 6.8/7.60;
 float movey = 3.4/7.60;
@@ -69,12 +72,13 @@ float margin = 4.0;
 float slope = 6.8/3.2;
 int counter = 0;
 float error_b = 0.0;
-int lane_b = 1;
+int lane_b = 0;
 int lane_gain = 2;
+float lane_confidence = 0.25;
 
 
 
-uint8_t moveWaypointForward(uint8_t waypoint, float distanceMeters, float movex, float movey, float error_b);
+uint8_t moveWaypointForward(uint8_t waypoint, float movex, float movey, float error_b);
 uint8_t moveWaypoint(uint8_t waypoint, struct EnuCoor_i *new_coor);
 // uint8_t increase_nav_heading(float incrementDegrees);
 // uint8_t chooseRandomIncrementAvoidance(void);
@@ -90,7 +94,7 @@ enum navigation_state_t {
 
 // define settings
 
-float oa_color_count_frac = 0.15f;
+float oa_color_count_frac = 0.12f;
 
 
 
@@ -105,7 +109,7 @@ typedef unsigned short uint16;
 
 int zone_left,zone_middle,zone_right;              // the three detection zones where the keypoints determined by surf are counted
 const int treshold_left = 10;                  // treshold values for the detection zones
-const int treshold_middle = 8;
+const int treshold_middle = 9;
 const int treshold_right = 10;
 
 const int16_t max_trajectory_confidence = 10; // number of consecutive negative object detections to be sure we are obstacle free
@@ -174,12 +178,12 @@ void orange_avoider_periodic(void)
 
   int32_t color_count_threshold = oa_color_count_frac * front_camera.output_size.w * front_camera.output_size.h;
 
-  VERBOSE_PRINT("color count: %d, zone1: %d, zone2: %d, zone3: %d,  obstacle free confidence: %d state: %d \n", color_count, zone_left, zone_middle, zone_right, obstacle_free_confidence, navigation_state);
+  VERBOSE_PRINT("color count: %d, zone1: %d, zone2: %d, zone3: %d,  obstacle free confidence: %d\n", color_count, zone_left, zone_middle, zone_right, obstacle_free_confidence);
   // update our safe confidence using heading_target input (from SURF feature detection)
-  if(zone_middle<treshold_middle || color_count < color_count_threshold){
+  if(zone_middle<treshold_middle && color_count < color_count_threshold){
     obstacle_free_confidence++;
   } else {
-    obstacle_free_confidence -= 2;  // be more cautious with positive obstacle detections
+    obstacle_free_confidence -= 3;  // be more cautious with positive obstacle detections
   }
 
   // bound obstacle_free_confidence
@@ -193,14 +197,15 @@ void orange_avoider_periodic(void)
          point_to(point_degree);
         }
       // Move waypoint forward
-      moveWaypointForward(WP_TRAJECTORY, 1.5f * moveDistance, movex, movey, error_b);
-      moveWaypointForward(WP_GOAL, moveDistance, movex, movey, error_b);
+      moveWaypointForward(WP_TRAJECTORY, movex, movey, error_b);
+      moveWaypointForward(WP_GOAL, movex, movey, error_b);
             float posx = POS_FLOAT_OF_BFP(stateGetPositionEnu_i()->x);
       float posy = POS_FLOAT_OF_BFP(stateGetPositionEnu_i()->y);
       float marker = posy + slope * posx;
       error_b = lane_gain * (lane_b - posy + movey/movex * posx);
-      VERBOSE_PRINT("Margin: %f.Marker: %f. error_b: %f", margin, marker, error_b);
-      VERBOSE_PRINT("movex = %f, movey = %f", movex, movey);
+      VERBOSE_PRINT("Margin: %f.Marker: %f. error_b: %f\n", margin, marker, error_b);
+      VERBOSE_PRINT("lane_b = %d, error_b = %f\n", lane_b, error_b);
+
       if ((leftboundary + margin) > (marker) || (marker) > (rightboundary - margin)){
          counter++;
          if (counter == 1)
@@ -208,7 +213,7 @@ void orange_avoider_periodic(void)
             movex = -movex;
             movey = -movey;
             point_degree = point_degree + 180;
-            VERBOSE_PRINT("Turn around");
+            VERBOSE_PRINT("Turn around\n");
           }
       }
       else if (obstacle_free_confidence == 0){
@@ -266,15 +271,15 @@ uint8_t point_to(float point_degree)
 /*
  * Calculates coordinates of a distance of 'distanceMeters' forward w.r.t. current position and heading
  */
-static uint8_t calculateForwards(struct EnuCoor_i *new_coor, float distanceMeters, float movex, float movey, float error_b)
+static uint8_t calculateForwards(struct EnuCoor_i *new_coor, float movex, float movey, float error_b)
 {
   float heading  = stateGetNedToBodyEulers_f()->psi;
 
   // Now determine where to place the waypoint you want to go to
   new_coor->x = stateGetPositionEnu_i()->x + POS_BFP_OF_REAL(movex);
   new_coor->y = stateGetPositionEnu_i()->y + POS_BFP_OF_REAL(movey + error_b);
-  VERBOSE_PRINT("point: x: %f,  y: %f based on pos(%f, %f) and heading(%f) with %f\n", POS_FLOAT_OF_BFP(new_coor->x),  POS_FLOAT_OF_BFP(new_coor->y), stateGetPositionEnu_f()->x, stateGetPositionEnu_f()->y, DegOfRad(heading), POS_BFP_OF_REAL(movex));
-  return false;
+  // VERBOSE_PRINT("point: x: %f,  y: %f based on pos(%f, %f) and heading(%f) with %f\n", POS_FLOAT_OF_BFP(new_coor->x),  POS_FLOAT_OF_BFP(new_coor->y), stateGetPositionEnu_f()->x, stateGetPositionEnu_f()->y, DegOfRad(heading), POS_BFP_OF_REAL(movex));
+return false;
 }
 
 /*
@@ -291,10 +296,10 @@ uint8_t moveWaypoint(uint8_t waypoint, struct EnuCoor_i *new_coor)
 /*
  * Calculates coordinates of distance forward and sets waypoint 'waypoint' to those coordinates
  */
-uint8_t moveWaypointForward(uint8_t waypoint, float distanceMeters, float movex, float movey, float error_b)
+uint8_t moveWaypointForward(uint8_t waypoint, float movex, float movey, float error_b)
 {
   struct EnuCoor_i new_coor;
-  calculateForwards(&new_coor, distanceMeters, movex, movey, error_b);
+  calculateForwards(&new_coor, movex, movey, error_b);
   moveWaypoint(waypoint, &new_coor);
   return false;
 }
@@ -304,16 +309,34 @@ uint8_t moveWaypointForward(uint8_t waypoint, float distanceMeters, float movex,
  */
 uint8_t chooseIncrementAvoidance(void)
 {
-  if (zone_left < treshold_left || zone_right < treshold_right){
+  if ((error_b*error_b < lane_confidence * lane_confidence * lane_gain * lane_gain) && (zone_left < treshold_left || zone_right < treshold_right)){
+     badlanes[lane_b] = 1;
     if(zone_left<zone_right){
-      heading_increment = -15.f;
+      if (movex > 0){ // flying to the right
+         lane_b++;
+      } else{
+         lane_b--;
+      }
     }
-    else{
-      heading_increment = 15.f;
-    }
+    else if(zone_left>zone_right){
+      if (movex > 0){
+         lane_b--;
+      } else{
+         lane_b++;
+      }
+    } 
+    else if (lane_b > 3){
+      lane_b = 1;
+      }
+    else if(lane_b < -3){
+      lane_b = -1;
+      }
   }
   else{
-    heading_increment = 180.f;
+     movex = -movex;
+     movey = -movey;
+     point_degree = point_degree + 180;
+     VERBOSE_PRINT("Turn around");
   }
   return false;
 }

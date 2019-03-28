@@ -39,7 +39,7 @@
     <define name="MT9F002_INITIAL_OFFSET_Y" value="0." /> <!-- Offset from center position [-0.5..0.5] -->
     <define name="MT9F002_OUTPUT_WIDTH" value="480" /> <!-- Output dimensions -->
     <define name="MT9F002_OUTPUT_HEIGHT" value="720" /> <!-- Output dimensions -->
-    <define name="MT9F002_TARGET_FPS" value="6" />
+    <define name="MT9F002_TARGET_FPS" value="10" />
     <define name="MT9F002_TARGET_EXPOSURE" value="20" />
     <define name="MT9F002_GAIN_GREEN1" value="4.0" />
     <define name="MT9F002_GAIN_GREEN2" value="4.0" />
@@ -72,7 +72,7 @@
     </module-->
     <module name="video_capture">
       <define name="VIDEO_CAPTURE_CAMERA" value="front_camera"/>
-      <define name="VIDEO_CAPTURE_FPS" value="10"/>
+      <define name="VIDEO_CAPTURE_FPS" value="5"/>
     </module>
     <module name="video_rtp_stream">
       <define name="VIEWVIDEO_CAMERA" value="front_camera"/>
