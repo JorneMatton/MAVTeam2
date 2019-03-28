@@ -54,6 +54,7 @@ uint8_t moveWaypointForward(uint8_t waypoint, float distanceMeters, float movex,
 uint8_t moveWaypoint(uint8_t waypoint, struct EnuCoor_i *new_coor);
 uint8_t increase_nav_heading(float incrementDegrees);
 uint8_t chooseRandomIncrementAvoidance(void);
+uint8_t chooseIncrementAvoidance(void);
 uint8_t point_to(float point_degree);
 
 enum navigation_state_t {
@@ -236,8 +237,8 @@ static uint8_t calculateForwards(struct EnuCoor_i *new_coor, float distanceMeter
   float heading  = stateGetNedToBodyEulers_f()->psi;
 
   // Now determine where to place the waypoint you want to go to
-  new_coor->x = stateGetPositionEnu_i()->x + POS_BFP_OF_REAL(movex);
-  new_coor->y = stateGetPositionEnu_i()->y + POS_BFP_OF_REAL(movey + error_b);
+  new_coor->x = stateGetPositionEnu_i()->x + POS_BFP_OF_REAL(movex/(1+error_b*error_b));
+  new_coor->y = stateGetPositionEnu_i()->y + POS_BFP_OF_REAL(movey\(1+error_b*error_b) + error_b);
   VERBOSE_PRINT("point: x: %f,  y: %f based on pos(%f, %f) and heading(%f) with %f\n", POS_FLOAT_OF_BFP(new_coor->x),  POS_FLOAT_OF_BFP(new_coor->y), stateGetPositionEnu_f()->x, stateGetPositionEnu_f()->y, DegOfRad(heading), POS_BFP_OF_REAL(movex));
   return false;
 }
@@ -276,6 +277,30 @@ uint8_t chooseRandomIncrementAvoidance(void)
   } else {
     heading_increment = -5.f;
     VERBOSE_PRINT("Set avoidance increment to: %f\n", heading_increment);
+  }
+  return false;
+}
+
+uint8_t chooseIncrementAvoidance(void)
+{
+  if (zone_left < treshold_left || zone_right < treshold_right){
+    if(zone_left<zone_right){
+      if (movex > 0 || error_b < 0.1 * lane_gain){ // flying to the right
+         lane_b++;
+      } else{
+         lane_b--;
+      }
+    }
+    else{
+      if (movex > 0 || error_b < 0.1 * lane_gain){
+         lane_b--;
+      } else{
+         lane_b++;
+      }
+    }
+  }
+  else{
+    heading_increment = 180.f;
   }
   return false;
 }
