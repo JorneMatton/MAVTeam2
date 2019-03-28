@@ -26,11 +26,12 @@ float global_timediff;
 static struct image_t *surf_object_detector(struct image_t *img)
 {
   int zone1 = 0, zone2 = 0, zone3 = 0;
-  clock_t tstart = clock();
-
+ 
+  clock_t tStart = clock();
   surfDetectObjectsAndComputeControl((char *) img->buf, img->w, img->h, &zone1, &zone2, &zone3);
+  printf("Time taken: %.2fs\n", (double)(clock() - tStart)/CLOCKS_PER_SEC);
   
-  float timediff = (float)(clock()-tstart)/CLOCKS_PER_SEC;
+  float timediff = 0;
 
   pthread_mutex_lock(&mutex);
   global_timediff = timediff;
