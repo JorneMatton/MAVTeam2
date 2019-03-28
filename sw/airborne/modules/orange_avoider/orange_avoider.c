@@ -59,13 +59,27 @@
 #define ORANGE_AVOIDER_CR_MAX 249
 #endif
 
+float point_degree = 60.0;
+float movex = 6.8/7.60;
+float movey = 3.4/7.60;
+int deg_acc = 1;
+float leftboundary = -8.925;
+float rightboundary =  8.925;
+float margin = 4.0;
+float slope = 6.8/3.2;
+int counter = 0;
+float error_b = 0.0;
+int lane_b = 1;
+int lane_gain = 2;
 
-uint8_t moveWaypointForward(uint8_t waypoint, float distanceMeters);
-uint8_t moveWaypointSideways(uint8_t waypoint);
+
+
+uint8_t moveWaypointForward(uint8_t waypoint, float distanceMeters, float movex, float movey, float error_b);
 uint8_t moveWaypoint(uint8_t waypoint, struct EnuCoor_i *new_coor);
 uint8_t increase_nav_heading(float incrementDegrees);
 uint8_t chooseRandomIncrementAvoidance(void);
-uint8_t chooseIncrementAvoidance(void); 
+uint8_t chooseIncrementAvoidance(void);
+uint8_t point_to(float point_degree);
 
 enum navigation_state_t {
   SAFE,
@@ -175,16 +189,33 @@ void orange_avoider_periodic(void)
 
   switch (navigation_state){
     case SAFE:
+      if (stateGetNedToBodyEulers_f()->psi > RadOfDeg(point_degree + deg_acc) || stateGetNedToBodyEulers_f()->psi < RadOfDeg(point_degree - deg_acc)){
+         point_to(point_degree);
+        }
       // Move waypoint forward
-      moveWaypointForward(WP_TRAJECTORY, 1.5f * moveDistance);
-      if (!InsideObstacleZone(WaypointX(WP_TRAJECTORY),WaypointY(WP_TRAJECTORY))){
-        navigation_state = OUT_OF_BOUNDS;
-      } else if (obstacle_free_confidence == 0){
+      moveWaypointForward(WP_TRAJECTORY, 1.5f * moveDistance, movex, movey, error_b);
+      moveWaypointForward(WP_GOAL, moveDistance, movex, movey, error_b);
+            float posx = POS_FLOAT_OF_BFP(stateGetPositionEnu_i()->x);
+      float posy = POS_FLOAT_OF_BFP(stateGetPositionEnu_i()->y);
+      float marker = posy + slope * posx;
+      error_b = lane_gain * (lane_b - posy + movey/movex * posx);
+      VERBOSE_PRINT("Margin: %f.Marker: %f. error_b: %f", margin, marker, error_b);
+      VERBOSE_PRINT("movex = %f, movey = %f", movex, movey);
+      if ((leftboundary + margin) > (marker) || (marker) > (rightboundary - margin)){
+         counter++;
+         if (counter == 1)
+         {
+            movex = -movex;
+            movey = -movey;
+            point_degree = point_degree + 180;
+            VERBOSE_PRINT("Turn around");
+          }
+      }
+      else if (obstacle_free_confidence == 0){
         navigation_state = OBSTACLE_FOUND;
       } else {
-        moveWaypointForward(WP_GOAL, moveDistance);
+        counter = 0;
       }
-
       break;
     case OBSTACLE_FOUND:
       //stop
@@ -211,7 +242,7 @@ void orange_avoider_periodic(void)
       break;
     case OUT_OF_BOUNDS:
       increase_nav_heading(heading_increment);
-      moveWaypointForward(WP_TRAJECTORY, 1.5f);
+      moveWaypointForward(WP_TRAJECTORY, 1.5f, movex, movey, error_b);
 
       if (InsideObstacleZone(WaypointX(WP_TRAJECTORY),WaypointY(WP_TRAJECTORY))){
         // add offset to head back into arena
@@ -248,38 +279,34 @@ uint8_t increase_nav_heading(float incrementDegrees)
   return false;
 }
 
+uint8_t point_to(float point_degree)
+{
+   float new_heading = RadOfDeg(point_degree);
+
+   // normalize heading to [-pi, pi]
+   FLOAT_ANGLE_NORMALIZE(new_heading);
+
+   // set heading
+   nav_heading = ANGLE_BFP_OF_REAL(new_heading);
+
+   VERBOSE_PRINT("Set heading to %f\n", DegOfRad(new_heading));
+   return false;
+}
+
 /*
  * Calculates coordinates of a distance of 'distanceMeters' forward w.r.t. current position and heading
  */
-static uint8_t calculateForwards(struct EnuCoor_i *new_coor, float distanceMeters)
+static uint8_t calculateForwards(struct EnuCoor_i *new_coor, float distanceMeters, float movex, float movey, float error_b)
 {
   float heading  = stateGetNedToBodyEulers_f()->psi;
 
   // Now determine where to place the waypoint you want to go to
-  new_coor->x = stateGetPositionEnu_i()->x + POS_BFP_OF_REAL(sinf(heading) * (distanceMeters));
-  new_coor->y = stateGetPositionEnu_i()->y + POS_BFP_OF_REAL(cosf(heading) * (distanceMeters));
-  // VERBOSE_PRINT("Calculated %f m forward position. x: %f  y: %f based on pos(%f, %f) and heading(%f)\n", distanceMeters,	
-                // POS_FLOAT_OF_BFP(new_coor->x), POS_FLOAT_OF_BFP(new_coor->y),
-                // stateGetPositionEnu_f()->x, stateGetPositionEnu_f()->y, DegOfRad(heading));
-  // VERBOSE_PRINT("distance is%f", distanceMeters);
+  new_coor->x = stateGetPositionEnu_i()->x + POS_BFP_OF_REAL(movex);
+  new_coor->y = stateGetPositionEnu_i()->y + POS_BFP_OF_REAL(movey + error_b);
+  VERBOSE_PRINT("point: x: %f,  y: %f based on pos(%f, %f) and heading(%f) with %f\n", POS_FLOAT_OF_BFP(new_coor->x),  POS_FLOAT_OF_BFP(new_coor->y), stateGetPositionEnu_f()->x, stateGetPositionEnu_f()->y, DegOfRad(heading), POS_BFP_OF_REAL(movex));
   return false;
- 
 }
 
-/*
- * Calculates coordinates of a distance of 'distanceMeters' to the right! w.r.t. current position and heading
- */
-// static uint8_t calculateSideways(struct EnuCoor_i *new_coor)
-// {
-//   float heading  = stateGetNedToBodyEulers_f()->psi;
-
-//   // Now determine where to place the waypoint you want to go to
-//   new_coor->x =  stateGetPositionEnu_i()->x + POS_BFP_OF_REAL(cosf(heading) * (1));
-//   new_coor->y =  stateGetPositionEnu_i()->y + POS_BFP_OF_REAL(sinf(heading) * (1));
-//   VERBOSE_PRINT("Calculated %f m forward position. x: %f  y: %f based on pos(%f, %f) and heading(%f)\n", distanceMeters, POS_FLOAT_OF_BFP(new_coor->x), POS_FLOAT_OF_BFP(new_coor->y),
-//                 stateGetPositionEnu_f()->x, stateGetPositionEnu_f()->y, DegOfRad(heading));
-//   return false;
-// }
 /*
  * Sets waypoint 'waypoint' to the coordinates of 'new_coor'
  */
@@ -294,23 +321,13 @@ uint8_t moveWaypoint(uint8_t waypoint, struct EnuCoor_i *new_coor)
 /*
  * Calculates coordinates of distance forward and sets waypoint 'waypoint' to those coordinates
  */
-uint8_t moveWaypointForward(uint8_t waypoint, float distanceMeters)
+uint8_t moveWaypointForward(uint8_t waypoint, float distanceMeters, float movex, float movey, float error_b)
 {
   struct EnuCoor_i new_coor;
-  calculateForwards(&new_coor, distanceMeters);
+  calculateForwards(&new_coor, distanceMeters, movex, movey, error_b);
   moveWaypoint(waypoint, &new_coor);
   return false;
 }
-
-
-// // this moves the waypoint to the right
-// uint8_t moveWaypointSideways(uint8_t waypoint)
-// {
-//   struct EnuCoor_i new_coor;
-//   calculateSideways(&new_coor);
-//   moveWaypoint(waypoint, &new_coor);
-//   return false;
-// }
 
 /*
  * Sets the variable 'heading_increment' positive/negative
@@ -330,7 +347,6 @@ uint8_t chooseIncrementAvoidance(void)
   }
   return false;
 }
-
 
 /*
  * Sets the variable 'heading_increment' randomly positive/negative
