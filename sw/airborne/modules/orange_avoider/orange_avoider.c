@@ -94,7 +94,7 @@ enum navigation_state_t {
 
 // define settings
 
-float oa_color_count_frac = 0.12f;
+float oa_color_count_frac = 0.1f;
 
 
 
@@ -108,9 +108,9 @@ int32_t color_count = 0; // orange color count from color filter for obstacle de
 typedef unsigned short uint16;
 
 int zone_left,zone_middle,zone_right;              // the three detection zones where the keypoints determined by surf are counted
-const int treshold_left = 10;                  // treshold values for the detection zones
-const int treshold_middle = 9;
-const int treshold_right = 10;
+const int treshold_left = 2;                  // treshold values for the detection zones
+const int treshold_middle = 5;
+const int treshold_right = 2;
 
 const int16_t max_trajectory_confidence = 10; // number of consecutive negative object detections to be sure we are obstacle free
 
@@ -226,7 +226,7 @@ void orange_avoider_periodic(void)
     case OBSTACLE_FOUND:
 
 		  chooseIncrementAvoidance();
-      obstacle_free_confidence = 4;    
+      obstacle_free_confidence = 3;    
       navigation_state = SAFE;
       break;
 
@@ -311,7 +311,7 @@ uint8_t chooseIncrementAvoidance(void)
 {
   if ((error_b*error_b < lane_confidence * lane_confidence * lane_gain * lane_gain) && (zone_left < treshold_left || zone_right < treshold_right)){
      badlanes[lane_b] = 1;
-    if(zone_left<zone_right){
+    if(zone_left<=zone_right){
       if (movex > 0){ // flying to the right
          lane_b++;
       } else{
@@ -325,19 +325,19 @@ uint8_t chooseIncrementAvoidance(void)
          lane_b++;
       }
     } 
-    else if (lane_b > 3){
+    if (lane_b > 3){
       lane_b = 1;
       }
     else if(lane_b < -3){
       lane_b = -1;
-      }
+      } 
   }
   else{
-     movex = -movex;
-     movey = -movey;
-     point_degree = point_degree + 180;
-     VERBOSE_PRINT("Turn around");
-  }
+    movex = -movex;
+    movey = -movey;
+    point_degree = point_degree + 180;
+    VERBOSE_PRINT("Turn around\n");
+    }
   return false;
 }
 

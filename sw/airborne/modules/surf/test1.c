@@ -27,7 +27,7 @@ static struct image_t *surf_object_detector(struct image_t *img)
 {
   int zone1 = 0, zone2 = 0, zone3 = 0;
   clock_t tstart = clock();
-
+  
   surfDetectObjectsAndComputeControl((char *) img->buf, img->w, img->h, &zone1, &zone2, &zone3);
   
   float timediff = (float)(clock()-tstart)/CLOCKS_PER_SEC;

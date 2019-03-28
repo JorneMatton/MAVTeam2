@@ -31,7 +31,7 @@ const bool SURF_IS_EXTENDED = false;         // set the surf from 64 dimensions 
 const bool EDGE_DETECTOR_IS_ON = false;     // Apply edge detector at template matching
 const int DECLARE_AS_OBSTACLE_TH = 3; //mininum number of keypoints that have to be detected
 
-const float OUTER_ZONES_FRAC = 0.5; //fraction of the images the outer zones take in
+const float OUTER_ZONES_FRAC = 0.3; //fraction of the images the outer zones take in
 const float MIDDLE_ZONE_FRAC = 0.2; //fraction of the images the inner zone takes in
 
 #define TEMPLATE_IP_METHOD INTER_LINEAR      // template resizing method
