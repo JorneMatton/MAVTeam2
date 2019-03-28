@@ -62,9 +62,9 @@ float maxDistance = 2.25;               // max waypoint displacement [m]
 
 
 int zone_left,zone_middle,zone_right;              // the three detection zones where the keypoints determined by surf are counted
-int treshold_left = 5;                  // treshold values for the detection zones
-int treshold_middle = 4;
-int treshold_right = 5;
+int treshold_left = 15;                  // treshold values for the detection zones
+int treshold_middle = 10;
+int treshold_right = 15;
 
 const int16_t max_trajectory_confidence = 5; // number of consecutive negative object detections to be sure we are obstacle free
 
