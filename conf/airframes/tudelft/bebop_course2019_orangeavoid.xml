@@ -87,7 +87,7 @@
     </module>
     <module name="surf">
       <define name="COLOR_FILTER_CAMERA" value="front_camera"/>
-      <define name="SURF_FPS" value="0"/>
+      <define name="SURF_FPS" value="6"/>
     </module>
     <module name="orange_avoider">
       <define name="ORANGE_AVOIDER_SURF_OBSTACLE_ID" value="ABI_BROADCAST"/>
