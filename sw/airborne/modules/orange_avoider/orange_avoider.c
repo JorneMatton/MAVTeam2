@@ -227,7 +227,7 @@ uint8_t point_to(float point_degree)
 /*
  * Calculates coordinates of a distance of 'distanceMeters' forward w.r.t. current position and heading
  */
-static uint8_t calculateForwards(struct EnuCoor_i *new_coor, float distanceMeters, float movex, float movey, float error_b)
+static uint8_t calculateForwards(struct EnuCoor_i *new_coor, float distanceMeters, float movex, float movey)
 {
   float heading  = stateGetNedToBodyEulers_f()->psi;
 
