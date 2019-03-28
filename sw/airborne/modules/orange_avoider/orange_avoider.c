@@ -76,8 +76,8 @@ int lane_gain = 2;
 
 uint8_t moveWaypointForward(uint8_t waypoint, float distanceMeters, float movex, float movey, float error_b);
 uint8_t moveWaypoint(uint8_t waypoint, struct EnuCoor_i *new_coor);
-uint8_t increase_nav_heading(float incrementDegrees);
-uint8_t chooseRandomIncrementAvoidance(void);
+// uint8_t increase_nav_heading(float incrementDegrees);
+// uint8_t chooseRandomIncrementAvoidance(void);
 uint8_t chooseIncrementAvoidance(void);
 uint8_t point_to(float point_degree);
 
@@ -95,7 +95,7 @@ float oa_color_count_frac = 0.15f;
 
 
 // define and initialise global variables
-enum navigation_state_t navigation_state = SEARCH_FOR_SAFE_HEADING;
+enum navigation_state_t navigation_state = SAFE;
 int obstacle_free_confidence = 0; // a measure of how certain we are that the way ahead is safe.
 float heading_increment = 5.f;          // heading angle increment [deg]
 float maxDistance = 2.25;               // max waypoint displacement [m]
@@ -108,7 +108,7 @@ const int treshold_left = 10;                  // treshold values for the detect
 const int treshold_middle = 8;
 const int treshold_right = 10;
 
-const int16_t max_trajectory_confidence = 5; // number of consecutive negative object detections to be sure we are obstacle free
+const int16_t max_trajectory_confidence = 10; // number of consecutive negative object detections to be sure we are obstacle free
 
 /*
  * ABI stuff
@@ -154,7 +154,7 @@ void orange_avoider_init(void)
 {
   // Initialise random values
   srand(time(NULL));
-  chooseRandomIncrementAvoidance();
+  chooseIncrementAvoidance();
 
   // bind our colorfilter and SURF algorithm callbacks to receive the color filter and SURF outputs
   AbiBindMsgSURF_OBSTACLE(ORANGE_AVOIDER_SURF_OBSTACLE_ID, &surf_detection_ev, surf_detection_cb);
@@ -163,7 +163,7 @@ void orange_avoider_init(void)
 }
 
 /*
- * Function that checks it is safe to move forwards, and then moves a waypoint forward or changes the heading
+ * Function that checks if it is safe to move forwards, and then moves a waypoint forward or changes the heading
  */
 void orange_avoider_periodic(void)
 {
@@ -179,13 +179,13 @@ void orange_avoider_periodic(void)
   if(zone_middle<treshold_middle || color_count < color_count_threshold){
     obstacle_free_confidence++;
   } else {
-    obstacle_free_confidence -= 1;  // be more cautious with positive obstacle detections
+    obstacle_free_confidence -= 2;  // be more cautious with positive obstacle detections
   }
 
   // bound obstacle_free_confidence
   Bound(obstacle_free_confidence, 0, max_trajectory_confidence);
 
-  float moveDistance = fminf(maxDistance, 0.2f * obstacle_free_confidence);
+  float moveDistance = fminf(maxDistance, 0.1f * obstacle_free_confidence);
 
   switch (navigation_state){
     case SAFE:
@@ -217,44 +217,14 @@ void orange_avoider_periodic(void)
         counter = 0;
       }
       break;
+
     case OBSTACLE_FOUND:
-      //stop
-		  waypoint_set_here_2d(WP_GOAL);
-		  waypoint_set_here_2d(WP_TRAJECTORY);
-    	//moveWaypointSideways(WP_TRAJECTORY);
-    	//moveWaypointSideways(WP_GOAL);
-      // inteligently select new search direction
+
 		  chooseIncrementAvoidance();
-      if (obstacle_free_confidence >= 2){
-          navigation_state = SAFE;
-          break;
-        }
-        
-      navigation_state = SEARCH_FOR_SAFE_HEADING;
+      obstacle_free_confidence = 4;    
+      navigation_state = SAFE;
       break;
-    case SEARCH_FOR_SAFE_HEADING:
-      increase_nav_heading(heading_increment);
 
-      // make sure we have a couple of good readings before declaring the way safe
-      if (obstacle_free_confidence >= 2){
-        navigation_state = SAFE;
-      }
-      break;
-    case OUT_OF_BOUNDS:
-      increase_nav_heading(heading_increment);
-      moveWaypointForward(WP_TRAJECTORY, 1.5f, movex, movey, error_b);
-
-      if (InsideObstacleZone(WaypointX(WP_TRAJECTORY),WaypointY(WP_TRAJECTORY))){
-        // add offset to head back into arena
-        increase_nav_heading(heading_increment);
-
-        // reset safe counter
-        obstacle_free_confidence = 0;
-
-        // ensure direction is safe before continuing
-        navigation_state = SEARCH_FOR_SAFE_HEADING;
-      }
-      break;
     default:
       break;
   }
@@ -265,19 +235,19 @@ void orange_avoider_periodic(void)
 /*
  * Increases the NAV heading. Assumes heading is an INT32_ANGLE. It is bound in this function.
  */
-uint8_t increase_nav_heading(float incrementDegrees)
-{
-  float new_heading = stateGetNedToBodyEulers_f()->psi + RadOfDeg(incrementDegrees);
+// uint8_t increase_nav_heading(float incrementDegrees)
+// {
+//   float new_heading = stateGetNedToBodyEulers_f()->psi + RadOfDeg(incrementDegrees);
 
-  // normalize heading to [-pi, pi]
-  FLOAT_ANGLE_NORMALIZE(new_heading);
+//   // normalize heading to [-pi, pi]
+//   FLOAT_ANGLE_NORMALIZE(new_heading);
 
-  // set heading
-  nav_heading = ANGLE_BFP_OF_REAL(new_heading);
+//   // set heading
+//   nav_heading = ANGLE_BFP_OF_REAL(new_heading);
 
-  // VERBOSE_PRINT("Increasing heading to %f\n", DegOfRad(new_heading));
-  return false;
-}
+//   // VERBOSE_PRINT("Increasing heading to %f\n", DegOfRad(new_heading));
+//   return false;
+// }
 
 uint8_t point_to(float point_degree)
 {
@@ -348,18 +318,18 @@ uint8_t chooseIncrementAvoidance(void)
   return false;
 }
 
-/*
- * Sets the variable 'heading_increment' randomly positive/negative
- */
-uint8_t chooseRandomIncrementAvoidance(void)
-{
-  // Randomly choose CW or CCW avoiding direction
-  if (rand() % 2 == 0) {
-    heading_increment = 15.f;
-    VERBOSE_PRINT("Set avoidance increment to: %f\n", heading_increment);
-  } else {
-    heading_increment = -15.f;
-    VERBOSE_PRINT("Set avoidance increment to: %f\n", heading_increment);
-  }
-  return false;
-}
+// /*
+//  * Sets the variable 'heading_increment' randomly positive/negative
+//  */
+// uint8_t chooseRandomIncrementAvoidance(void)
+// {
+//   // Randomly choose CW or CCW avoiding direction
+//   if (rand() % 2 == 0) {
+//     heading_increment = 15.f;
+//     VERBOSE_PRINT("Set avoidance increment to: %f\n", heading_increment);
+//   } else {
+//     heading_increment = -15.f;
+//     VERBOSE_PRINT("Set avoidance increment to: %f\n", heading_increment);
+//   }
+//   return false;
+// }
