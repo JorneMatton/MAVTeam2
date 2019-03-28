@@ -32,8 +32,8 @@
       <message name="VISION_POSITION_ESTIMATE" period="0.1"/>
       <message name="DIVERGENCE"               period="0.05"/>
       <message name="DRAGSPEED"                period="0.02"/>
-      <message name="ORANGE_AVOIDER"           period="0.1"/>
-      <message name="SURF"                     period="0.1"/>
+      <message name="ORANGE_AVOIDER"           period="0.05"/>
+      <message name="SURF"                     period="0.05"/>
     </mode>
 
     <mode name="ppm">

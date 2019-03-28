@@ -71,6 +71,7 @@ void surfDetectObjectsAndComputeControl(char *img, int imgWidth, int imgHeigth, 
 
     //we will store object keypoints in here
     vector<float> objectYPoints;
+    vector<KeyPoint> objectKeypoints;
 
     // Skip the first N_SKIP images since we cannot match them with anything yet
     if (prevImgQueue.size() > (N_SKIP - 1))
@@ -196,6 +197,7 @@ void surfDetectObjectsAndComputeControl(char *img, int imgWidth, int imgHeigth, 
                 if ((bestMatchingScale >= OBJECT_SCALE_DETECTION_TH) && (lowestError <= (ERROR_DECREASE_FACTOR * errAtScaleOne)))
                 {
                     objectYPoints.push_back(finalNewKps[idx].pt.y);
+                    objectKeypoints.push_back(finalNewKps[idx]);
                 }
             }
         }
@@ -206,6 +208,31 @@ void surfDetectObjectsAndComputeControl(char *img, int imgWidth, int imgHeigth, 
 
         // sort keypoints into 3 zones (as defined in the settings)
         sort_rows(keypointsx,amount_keypointsx,imgWidth,zone1,zone2,zone3);
+
+        ///////////////////////////////////////////////////////////////////////
+
+        // Mat plotImg(newImg.size().height, newImg.size().width, CV_8UC3, Scalar(0, 0, 0));
+        // drawKeypoints(grayNewImg, finalNewKps, plotImg, cv::Scalar(255, 0, 0), 4);
+
+        //     //Now draw also the objects
+        // if (objectKeypoints.size() > 0)
+        // {
+
+        //     cv::String text = "CAUTION OBJECT";
+        //     for (uint obIdx = 0; obIdx < objectKeypoints.size(); obIdx++)
+        //     {
+        //         putText(plotImg, text, objectKeypoints[obIdx].pt, FONT_HERSHEY_SIMPLEX, 1, cv::Scalar(0, 0, 255), 2);
+        //         circle(plotImg, objectKeypoints[obIdx].pt, 8, cv::Scalar(0, 0, 255), FILLED);
+        //     }
+        // }
+
+        // //Plot the results
+        // cv::namedWindow("wtf",WINDOW_NORMAL);
+        // resizeWindow("wtf", 600,600);
+        // cv::imshow("wtf",plotImg);
+        // waitKey(100);
+
+        ////////////////////////////////////////////////////////////////////
     }
 
     //Add the new gray image, new descriptors and new keypoints to the queue

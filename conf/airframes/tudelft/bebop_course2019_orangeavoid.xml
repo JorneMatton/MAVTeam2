@@ -9,11 +9,27 @@
     <target name="ap" board="bebop">
       <define name="VIDEO_CAPTURE_PATH" value="/data/ftp/internal_000/images"/>
       <define name="FILE_LOGGER_PATH" value="/data/ftp/internal_000/log"/>
+
+            <!-- Detect orange -->
+      <define name="COLOR_OBJECT_DETECTOR_LUM_MIN1" value="40"/>
+      <define name="COLOR_OBJECT_DETECTOR_LUM_MAX1" value="145"/>
+      <define name="COLOR_OBJECT_DETECTOR_CB_MIN1" value="65"/>
+      <define name="COLOR_OBJECT_DETECTOR_CB_MAX1" value="140"/>
+      <define name="COLOR_OBJECT_DETECTOR_CR_MIN1" value="160"/>
+      <define name="COLOR_OBJECT_DETECTOR_CR_MAX1" value="225"/>
     </target>
     <target name="nps" board="pc">
       <module name="fdm" type="gazebo"/>
       <define name="VIDEO_CAPTURE_PATH" value="/tmp/paparazzi/images"/>
       <define name="FILE_LOGGER_PATH" value="/tmp/paparazzi/log"/>
+
+            <!-- Detect orange -->
+      <define name="COLOR_OBJECT_DETECTOR_LUM_MIN1" value="41"/>
+      <define name="COLOR_OBJECT_DETECTOR_LUM_MAX1" value="183"/>
+      <define name="COLOR_OBJECT_DETECTOR_CB_MIN1" value="53"/>
+      <define name="COLOR_OBJECT_DETECTOR_CB_MAX1" value="121"/>
+      <define name="COLOR_OBJECT_DETECTOR_CR_MIN1" value="134"/>
+      <define name="COLOR_OBJECT_DETECTOR_CR_MAX1" value="249"/>
     </target>
     
     <define name="ARRIVED_AT_WAYPOINT" value="0.5"/><!-- Detect arrival at waypoint when within 0.5m -->
@@ -21,9 +37,9 @@
     <!-- Front Camera parameters -->
     <define name="MT9F002_INITIAL_OFFSET_X" value="0.09" /> <!-- Offset from center position [-0.5..0.5]. Set to 0.09 to center horizon. -->
     <define name="MT9F002_INITIAL_OFFSET_Y" value="0." /> <!-- Offset from center position [-0.5..0.5] -->
-    <define name="MT9F002_OUTPUT_WIDTH" value="240" /> <!-- Output dimensions -->
-    <define name="MT9F002_OUTPUT_HEIGHT" value="520" /> <!-- Output dimensions -->
-    <define name="MT9F002_TARGET_FPS" value="30" />
+    <define name="MT9F002_OUTPUT_WIDTH" value="480" /> <!-- Output dimensions -->
+    <define name="MT9F002_OUTPUT_HEIGHT" value="720" /> <!-- Output dimensions -->
+    <define name="MT9F002_TARGET_FPS" value="6" />
     <define name="MT9F002_TARGET_EXPOSURE" value="20" />
     <define name="MT9F002_GAIN_GREEN1" value="4.0" />
     <define name="MT9F002_GAIN_GREEN2" value="4.0" />
@@ -64,12 +80,18 @@
       <define name="VIEWVIDEO_DOWNSIZE_FACTOR" value="1"/>
       <define name="VIEWVIDEO_QUALITY_FACTOR" value="40"/>
     </module>
+    <module name="cv_detect_color_object">
+      <define name="COLOR_OBJECT_DETECTOR_CAMERA1" value="front_camera"/>
+      <define name="COLOR_OBJECT_DETECTOR_FPS1" value="0"/>
+      <define name="COLOR_OBJECT_DETECTOR_DRAW1" value="0"/>
+    </module>
     <module name="surf">
       <define name="COLOR_FILTER_CAMERA" value="front_camera"/>
-      <define name="SURF_FPS" value="10"/>
+      <define name="SURF_FPS" value="0"/>
     </module>
     <module name="orange_avoider">
       <define name="ORANGE_AVOIDER_SURF_OBSTACLE_ID" value="ABI_BROADCAST"/>
+      <define name="ORANGE_AVOIDER_VISUAL_DETECTION_ID" value="COLOR_OBJECT_DETECTION1_ID"/>
     </module>
 
   </firmware>
