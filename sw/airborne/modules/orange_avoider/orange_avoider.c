@@ -76,7 +76,7 @@ enum navigation_state_t {
 
 // define settings
 
-float oa_color_count_frac = 0.5f;
+float oa_color_count_frac = 0.3f;
 
 
 
@@ -90,9 +90,9 @@ int32_t color_count = 0; // orange color count from color filter for obstacle de
 typedef unsigned short uint16;
 
 int zone_left,zone_middle,zone_right;              // the three detection zones where the keypoints determined by surf are counted
-const int treshold_left = 10;                  // treshold values for the detection zones
-const int treshold_middle = 15;
-const int treshold_right = 10;
+const int treshold_left = 8;                  // treshold values for the detection zones
+const int treshold_middle = 10;
+const int treshold_right = 8;
 
 const int16_t max_trajectory_confidence = 5; // number of consecutive negative object detections to be sure we are obstacle free
 

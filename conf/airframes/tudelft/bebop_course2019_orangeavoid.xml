@@ -37,15 +37,15 @@
     <!-- Front Camera parameters -->
     <define name="MT9F002_INITIAL_OFFSET_X" value="0.09" /> <!-- Offset from center position [-0.5..0.5]. Set to 0.09 to center horizon. -->
     <define name="MT9F002_INITIAL_OFFSET_Y" value="0." /> <!-- Offset from center position [-0.5..0.5] -->
-    <define name="MT9F002_OUTPUT_WIDTH" value="100" /> <!-- Output dimensions -->
-    <define name="MT9F002_OUTPUT_HEIGHT" value="100" /> <!-- Output dimensions -->
+    <define name="MT9F002_OUTPUT_WIDTH" value="104" /> <!-- Output dimensions -->
+    <define name="MT9F002_OUTPUT_HEIGHT" value="104" /> <!-- Output dimensions -->
     <define name="MT9F002_TARGET_FPS" value="6" />
     <define name="MT9F002_TARGET_EXPOSURE" value="20" />
     <define name="MT9F002_GAIN_GREEN1" value="4.0" />
     <define name="MT9F002_GAIN_GREEN2" value="4.0" />
     <define name="MT9F002_GAIN_RED" value="5.0" />
     <define name="MT9F002_GAIN_BLUE" value="5.0" />
-    <define name="MT9F002_OUTPUT_SCALER" value="0.25"/>
+    <define name="MT9F002_OUTPUT_SCALER" value="0.1"/>
 
   <!-- Subsystem section -->
     <module name="telemetry" type="transparent_udp"/>

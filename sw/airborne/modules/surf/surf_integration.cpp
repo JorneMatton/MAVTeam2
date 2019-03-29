@@ -75,7 +75,7 @@ void surfDetectObjectsAndComputeControl(char *img, int imgWidth, int imgHeigth, 
 
     //we will store object keypoints in here
     vector<float> objectYPoints;
-    for(int idx=0;idx<newKps.size();idx++){
+    for(uint idx=0;idx<newKps.size();idx++){
         objectYPoints.push_back(newKps[idx].pt.y);
     }
     
