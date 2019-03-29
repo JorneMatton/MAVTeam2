@@ -26,6 +26,12 @@
     <file name="surf_integration.cpp"/>
     <flag name="CXXFLAGS" value="I$(PAPARAZZI_SRC)/sw/ext/opencv_bebop/install_arm/include"/>
     
+		<!-- these flags are needed in order to compile (usage of extra libraries) -->
+		<!-- NOTE: MAKE SURE TO HAVE mavlabCourse2019_with_contrib  PULLED IN ~/paparazzi/sw/ext/opencv_bebop-->
+		<!-- THEN, MAKE CLEAN AND MAKE -->
+		<!-- THE FOLLOWING THINGS HAVE TO BE ADDED/ADJUSTED IN THE MAKEFILE TO MAKE EVERYTHING WORK -->
+		<!-- BUILD FLAGS: -DOPENCV_ENABLE_NONFREE=ON\ 	-DWITH_GTK=ON \ -DWITH_GTK_2_X=ON \-->
+
 	<flag name="LDFLAGS" value="L$(PAPARAZZI_HOME)/sw/ext/opencv_bebop/install_arm/lib"/>
 	<flag name="LDFLAGS" value="lopencv_world"/>
 	<flag name="LDFLAGS" value="L$(PAPARAZZI_HOME)/sw/ext/opencv_bebop/install_arm/share/OpenCV/3rdparty/lib"/>
@@ -49,6 +55,12 @@
     <file name="surf_integration.cpp"/>
     
     <flag name="CXXFLAGS" value="I$(PAPARAZZI_SRC)/sw/ext/opencv_bebop/install_pc/include"/>
+
+		<!-- these flags are needed in order to compile (usage of extra libraries) -->
+		<!-- NOTE: MAKE SURE TO HAVE mavlabCourse2019_with_contrib  PULLED IN ~/paparazzi/sw/ext/opencv_bebop-->
+		<!-- THEN, MAKE CLEAN AND MAKE -->
+		<!-- THE FOLLOWING THINGS HAVE TO BE ADDED/ADJUSTED IN THE MAKEFILE TO MAKE EVERYTHING WORK -->
+		<!-- BUILD FLAGS: -DOPENCV_ENABLE_NONFREE=ON\ 	-DWITH_GTK=ON \ -DWITH_GTK_2_X=ON \-->
     
 	<flag name="LDFLAGS" value="L$(PAPARAZZI_HOME)/sw/ext/opencv_bebop/install_pc/lib"/>
 	<flag name="LDFLAGS" value="lopencv_world"/>
