@@ -1,3 +1,18 @@
+/*
+ * Copyright (C) Mav Team 2
+ *
+ * This file is part of paparazzi
+ *
+ */
+/**
+ * @file "modules/surf/surf_integration.c"
+ * @author Jan Verheyen
+ * This modules takes as input an image and applies the surf algorithm to detect objects hat are
+ * coming close to the camera, given a certain treshold. The module sends information about 3 zones
+ * (middle/2 side) to the orange_avoider.c module for further processing. This module is called 
+ * by test1.c when an image becomes available from the camera.
+ */
+
 #include <stdio.h>
 #include "std.h"
 #include <iostream>
